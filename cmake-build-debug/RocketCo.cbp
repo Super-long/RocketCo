@@ -96,6 +96,9 @@
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Co_Entity.h">
 			<Option target="RocketCo"/>
 		</Unit>
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Co_Routine.cpp">
+			<Option target="RocketCo"/>
+		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Co_Routine.h">
 			<Option target="RocketCo"/>
 		</Unit>
@@ -118,6 +121,12 @@
 			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coswap.h">
+			<Option target="RocketCo"/>
+		</Unit>
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.cpp">
+			<Option target="RocketCo"/>
+		</Unit>
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.h">
 			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/main.cpp">

@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/RocketCo.dir/Co_Routine.cpp.o"
   "CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o"
   "CMakeFiles/RocketCo.dir/coswap.cpp.o"
+  "CMakeFiles/RocketCo.dir/hook.cpp.o"
   "CMakeFiles/RocketCo.dir/main.cpp.o"
   "RocketCo"
   "RocketCo.pdb"

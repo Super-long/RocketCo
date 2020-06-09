@@ -11,6 +11,12 @@
 #include <memory>
 
 namespace RocketCo{
+
+    // 用于在Eventloop中指定一次epollwait的最大事件数量
+    constexpr const int DefaultEpollEventSize(){
+        return 1024*1024;
+    }
+
     class EpollEvent_Result final : public Nocopy{
         friend class Epoll;
         public:

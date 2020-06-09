@@ -2,23 +2,20 @@
 // Created by lizhaolong on 2020/6/8.
 //
 
-#ifndef ROCKETCO_CO_ROUTINE_H
-#define ROCKETCO_CO_ROUTINE_H
-
-#include "Co_Entity.h" // 协程的实体
 #include "Co_Routine.h"
+#include "Co_Entity.h" // 协程的实体
 #include "EpollWrapper/epoll.h"
 
 #include <string.h>
 
 #include <chrono>
 #include <new> // bad_alloc
+#include <functional>
 #include <iostream> // cerr
 
 namespace RocketCo {
     // -------------------  一些宏和别名
-
-    using Co_RealFun = std::function<void*(void*)>;
+    using Poll_fun = std::function<int(struct pollfd fds[], nfds_t nfds, int timeout)>; // 用于Co_poll_inner
 
     // -------------------  结构体声明
 
@@ -31,7 +28,7 @@ namespace RocketCo {
     void init_thisThread_Env();
     extern "C"
     {
-        extern void coctx_swap( coctx_t *,coctx_t* ) asm("coctx_swap");
+        extern void coctx_swap( co_swap_t *,co_swap_t* ) asm("coctx_swap");
     };
 
     // -------------------  全局变量
@@ -54,18 +51,43 @@ namespace RocketCo {
         CoEventItem* Next;      // 后一个元素
 
         CoEventItemIink* link;  // 此item所属链表
-        //https://en.cppreference.com/w/cpp/chrono/time_point
-        std::chrono::system_clock::time_point ExpireTime;   // 记录超时时间
 
         std::function<void(CoEventItem*, struct epoll_event&,CoEventItemIink*)> CoPrepare; //epoll中执行的云处理函数
         std::function<void(CoEventItem*)> CoPrecoss;        //epoll中执行的回调函数
 
+        Co_Entity* ItemCo;   // 当前项所属的协程
         bool IsTimeout; // 标记这个事件是否已经超时
     };
 
     struct CoEventItemIink{
         CoEventItem *head;
         CoEventItem *tail;
+    };
+
+    struct Stpoll_t;
+    struct StPollItem : public CoEventItem{
+        struct pollfd *pSelf;       // 原本的的poll事件结构
+        Stpoll_t* Stpoll;           // 所属的Stpoll
+        struct ::epoll_event Event; // 对应epoll的事件
+    };
+
+    struct Stpoll_t{
+        int epfd;                   // epoll fd
+        int IsHandle;               // 所有的事件是否已经被处理的
+        int RaisedNumber;           // 已经被触发的事件数
+        nfds_t nfds;                // 描述的事件个数
+
+        struct pollfd *fds;         // 指向poll传进来的全部事件
+        StPollItem* WillJoinEpoll;  // 将会传递给epoll的事件集
+
+        std::function<void(CoEventItem*)> CoPrecoss;
+        void* ItemCo;
+        //https://en.cppreference.com/w/cpp/chrono/time_point
+        std::chrono::system_clock::time_point ExpireTime;   // 记录超时时间
+
+        Stpoll_t(nfds_t nfds_, int epfd_, struct pollfd *fds_)
+                :epfd(epfd_), nfds(nfds_), fds(fds_), IsHandle(0), RaisedNumber(0){
+        }
     };
 
     #define MaximumNumberOfCoroutinesAllowed 256
@@ -89,6 +111,13 @@ namespace RocketCo {
         // Callback中current上一个共享栈的协程实体(可能共享栈与默认模式混合)
         Co_Entity* using_Co;    // 正在使用的协程
         Co_Entity* prev_Co;     // 调用栈中的上一个协程
+    };
+
+    struct Co_Attribute{
+        static constexpr const int Default_StackSize = 128 * 1024;      // 128KB
+        static constexpr const int Maximum_StackSize = 8 * 1024 * 1024; // 8MB
+        int stack_size = Default_StackSize;              // 规定栈的大小
+        Co_ShareStack* shareStack = nullptr;    // 默认为不共享
     };
 
     // 给协程实体分配内存并初始化
@@ -143,6 +172,7 @@ namespace RocketCo {
         Co->ISstart = false;
         Co->IsMain = false;
         Co->IsEnd = false;
+        Co->IsHook = false;
         Co->IsShareStack = attr->shareStack != nullptr;
 
         // 共享栈相关,可以暂时不用初始化,在执行协程切换的时候进行赋值
@@ -289,6 +319,128 @@ namespace RocketCo {
         env->Co_CallBack[env->Co_ESP++] = Co;
         co_swap_Co(Co, current);
     }
-}
 
-#endif //ROCKETCO_CO_ROUTINE_H
+    Co_Epoll* GetCurrentCoEpoll(){
+        if( !get_thisThread_Env()){
+            init_thisThread_Env();
+        }
+        return get_thisThread_Env()->Epoll_;
+    }
+
+    Co_Entity *GetCurrCo(Co_Rountinue_Env *env ){
+        return env->Co_CallBack[env->Co_ESP - 1];
+    }
+
+    Co_Entity* GetCurrentCoEntity(){
+        if( !get_thisThread_Env()){
+            init_thisThread_Env();
+        }
+        return GetCurrCo(get_thisThread_Env());
+    }
+
+    bool GetCurrentCoIsHook(){
+        return GetCurrentCoEntity()->IsHook;
+    }
+
+    uint32_t EventPoll2Epoll(short events){
+        uint32_t res;
+        if( events & POLLIN ) 	  res |= EPOLLIN;
+        if( events & POLLOUT )    res |= EPOLLOUT;
+        if( events & POLLHUP ) 	  res |= EPOLLHUP;
+        if( events & EPOLLRDHUP)  res |= EPOLLRDHUP;
+        if( events & POLLERR )	  res |= EPOLLERR;
+        if( events & POLLRDNORM ) res |= EPOLLRDNORM;
+        if( events & POLLWRNORM ) res |= EPOLLWRNORM;
+        // 还有一些事件是epoll有poll没有,就没啥必要写了
+        return res;
+    }
+
+    constexpr const int ShortItemOptimization = 2;
+    int Co_poll_inner(Co_Epoll* Epoll_, struct pollfd fds[], nfds_t nfds, int timeout, Poll_fun pollfunc){
+        // TODO 获取epoll fd, 不一定有必要
+        int epfd = Epoll_->epoll_t->fd();
+        Co_Entity* self = GetCurrentCoEntity(); // 获取当前运行的协程
+
+        auto Temp = new pollfd[nfds];
+        Stpoll_t* poll_ = new Stpoll_t(nfds, epfd, Temp);
+
+        // 数据量小的时候的一个优化,模仿std::string
+        StPollItem array[ShortItemOptimization];
+        // TODO 是否需要判断目前是否为共享栈模型
+        if(nfds < ShortItemOptimization) {
+            poll_->WillJoinEpoll = array;
+        } else {
+            poll_->WillJoinEpoll = new StPollItem[nfds];
+        }
+        bzero(poll_->WillJoinEpoll, sizeof(StPollItem) * nfds);
+        poll_->ItemCo = GetCurrCo(get_thisThread_Env()); // 把此项所属的协程存起来,方便在事件完成的时候进行唤醒
+        // 当事件就绪或超时时设置的回调,用于唤醒这个协程继续处理
+        poll_->CoPrecoss = [](CoEventItem* para){Co_resume(para->ItemCo);};
+
+        // 把poll事件添加到epoll中
+        for(int i = 0; i < nfds; ++i){
+            poll_->WillJoinEpoll[i].pSelf = poll_->fds + i;
+            poll_->WillJoinEpoll[i].Stpoll = poll_;
+            poll_->WillJoinEpoll[i].CoPrepare;
+
+            struct ::epoll_event& ev = poll_->WillJoinEpoll[i].Event;
+
+            if(fds[i].fd > -1){ // 如果套接字有效的话
+                ev.data.ptr = poll_->WillJoinEpoll + i; // 在事件发生的时候使用
+                ev.events = EventPoll2Epoll(fds[i].events);
+                // 把此事件插入epoll
+                int ret = Epoll_->epoll_t->Add({fds[i].fd, static_cast<EpollEventType>(ev.events)});
+
+                if(ret < 0 && errno != EAGAIN && nfds <= ShortItemOptimization && pollfunc != nullptr){
+                    // 显然小于等于ShortItemOptimization的时候不会给poll_->WillJoinEpoll分配内存
+                    delete [] Temp;
+                    delete poll_;
+                    return pollfunc(fds, nfds, timeout);
+                }
+            }
+            // nfds比较多而且失败的失败的话就触发超时,这里其实可以对超时事件做一个把控
+        }
+
+        // 添加到定时器中
+
+        auto Now = std::chrono::system_clock::now(); // 获取当前事件
+        // std::ratio基本单位为秒
+        std::chrono::duration<int, std::ratio<1,1> > TimeOut(timeout);
+        poll_->ExpireTime = Now + TimeOut;
+
+        // TODO 6.10的任务是定时器
+
+    }
+
+    // TODO 等完成poll的一系列操作以后再来写下面两个函数
+    void EveryLoopPrepare(CoEventItem* item){
+        if(item->CoPrepare){
+
+        }
+    }
+
+    // 主协程最终会运行到这里
+    void EventLoop(Co_Epoll* Epoll_, const Co_EventLoopFun& fun, void* args){
+
+        // epoll的事件结果集
+        EpollEvent_Result Event_Reault(DefaultEpollEventSize());
+
+        while(true){
+            Epoll_->epoll_t->Epoll_Wait(Event_Reault);
+
+            CoEventItemIink* active  = Epoll_->ActiveLink;
+            CoEventItemIink* timeout = Epoll_->TimeoutLink;
+
+            for(int i = 0; i < Event_Reault.size(); ++i) {
+                CoEventItem* item = (CoEventItem*)Event_Reault[i].Return_Pointer()->data.ptr;
+                EveryLoopPrepare(item);
+
+                // TODO 先完成时间轮和poll的hook
+
+            }
+        }
+
+    }
+
+    // --------------------------
+}

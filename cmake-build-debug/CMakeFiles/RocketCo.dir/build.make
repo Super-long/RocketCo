@@ -83,9 +83,22 @@ CMakeFiles/RocketCo.dir/coswap.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/RocketCo.dir/coswap.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/coswap.cpp -o CMakeFiles/RocketCo.dir/coswap.cpp.s
 
+CMakeFiles/RocketCo.dir/Co_Routine.cpp.o: CMakeFiles/RocketCo.dir/flags.make
+CMakeFiles/RocketCo.dir/Co_Routine.cpp.o: ../Co_Routine.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/RocketCo.dir/Co_Routine.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/RocketCo.dir/Co_Routine.cpp.o -c /home/lizhaolong/suanfa/RocketCo/Co_Routine.cpp
+
+CMakeFiles/RocketCo.dir/Co_Routine.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/RocketCo.dir/Co_Routine.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lizhaolong/suanfa/RocketCo/Co_Routine.cpp > CMakeFiles/RocketCo.dir/Co_Routine.cpp.i
+
+CMakeFiles/RocketCo.dir/Co_Routine.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/RocketCo.dir/Co_Routine.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/Co_Routine.cpp -o CMakeFiles/RocketCo.dir/Co_Routine.cpp.s
+
 CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o: CMakeFiles/RocketCo.dir/flags.make
 CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o: ../EpollWrapper/address.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o -c /home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp
 
 CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.i: cmake_force
@@ -96,21 +109,38 @@ CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp -o CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.s
 
+CMakeFiles/RocketCo.dir/hook.cpp.o: CMakeFiles/RocketCo.dir/flags.make
+CMakeFiles/RocketCo.dir/hook.cpp.o: ../hook.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/RocketCo.dir/hook.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/RocketCo.dir/hook.cpp.o -c /home/lizhaolong/suanfa/RocketCo/hook.cpp
+
+CMakeFiles/RocketCo.dir/hook.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/RocketCo.dir/hook.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lizhaolong/suanfa/RocketCo/hook.cpp > CMakeFiles/RocketCo.dir/hook.cpp.i
+
+CMakeFiles/RocketCo.dir/hook.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/RocketCo.dir/hook.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/hook.cpp -o CMakeFiles/RocketCo.dir/hook.cpp.s
+
 # Object files for target RocketCo
 RocketCo_OBJECTS = \
 "CMakeFiles/RocketCo.dir/main.cpp.o" \
 "CMakeFiles/RocketCo.dir/coswap.cpp.o" \
-"CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o"
+"CMakeFiles/RocketCo.dir/Co_Routine.cpp.o" \
+"CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o" \
+"CMakeFiles/RocketCo.dir/hook.cpp.o"
 
 # External object files for target RocketCo
 RocketCo_EXTERNAL_OBJECTS =
 
 RocketCo: CMakeFiles/RocketCo.dir/main.cpp.o
 RocketCo: CMakeFiles/RocketCo.dir/coswap.cpp.o
+RocketCo: CMakeFiles/RocketCo.dir/Co_Routine.cpp.o
 RocketCo: CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o
+RocketCo: CMakeFiles/RocketCo.dir/hook.cpp.o
 RocketCo: CMakeFiles/RocketCo.dir/build.make
 RocketCo: CMakeFiles/RocketCo.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable RocketCo"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable RocketCo"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/RocketCo.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

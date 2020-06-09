@@ -123,6 +123,33 @@ RocketCo/fast:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/build
 .PHONY : RocketCo/fast
 
+Co_Routine.o: Co_Routine.cpp.o
+
+.PHONY : Co_Routine.o
+
+# target to build an object file
+Co_Routine.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/Co_Routine.cpp.o
+.PHONY : Co_Routine.cpp.o
+
+Co_Routine.i: Co_Routine.cpp.i
+
+.PHONY : Co_Routine.i
+
+# target to preprocess a source file
+Co_Routine.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/Co_Routine.cpp.i
+.PHONY : Co_Routine.cpp.i
+
+Co_Routine.s: Co_Routine.cpp.s
+
+.PHONY : Co_Routine.s
+
+# target to generate assembly for a file
+Co_Routine.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/Co_Routine.cpp.s
+.PHONY : Co_Routine.cpp.s
+
 EpollWrapper/address.o: EpollWrapper/address.cpp.o
 
 .PHONY : EpollWrapper/address.o
@@ -177,6 +204,33 @@ coswap.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.s
 .PHONY : coswap.cpp.s
 
+hook.o: hook.cpp.o
+
+.PHONY : hook.o
+
+# target to build an object file
+hook.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/hook.cpp.o
+.PHONY : hook.cpp.o
+
+hook.i: hook.cpp.i
+
+.PHONY : hook.i
+
+# target to preprocess a source file
+hook.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/hook.cpp.i
+.PHONY : hook.cpp.i
+
+hook.s: hook.cpp.s
+
+.PHONY : hook.s
+
+# target to generate assembly for a file
+hook.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/hook.cpp.s
+.PHONY : hook.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -213,12 +267,18 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... RocketCo"
 	@echo "... edit_cache"
+	@echo "... Co_Routine.o"
+	@echo "... Co_Routine.i"
+	@echo "... Co_Routine.s"
 	@echo "... EpollWrapper/address.o"
 	@echo "... EpollWrapper/address.i"
 	@echo "... EpollWrapper/address.s"
 	@echo "... coswap.o"
 	@echo "... coswap.i"
 	@echo "... coswap.s"
+	@echo "... hook.o"
+	@echo "... hook.i"
+	@echo "... hook.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
