@@ -27,8 +27,10 @@ namespace RocketCo {
         co_swap_t cst;          // 协程上下文实体
 
         bool ISstart;           // 协程现在是否执行resume
+        bool IsEnd;             // 标记当前是否执行完了用户指定的函数
         bool IsShareStack;      // 标记共享栈模式还是每个协程一个栈
         bool IsMain;            // 是否是主协程
+
 
         Co_Stack_Member* Csm;   // 协程的栈空间
 
