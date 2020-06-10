@@ -126,9 +126,6 @@
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.cpp">
 			<Option target="RocketCo"/>
 		</Unit>
-		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.h">
-			<Option target="RocketCo"/>
-		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/main.cpp">
 			<Option target="RocketCo"/>
 		</Unit>

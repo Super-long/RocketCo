@@ -7,8 +7,9 @@
 #include "EpollWrapper/epoll.h"
 
 #include <string.h>
-
+#include <assert.h>
 #include <chrono>
+#include <vector>
 #include <new> // bad_alloc
 #include <functional>
 #include <iostream> // cerr
@@ -50,7 +51,7 @@ namespace RocketCo {
         CoEventItem* Prev;      // 前一个元素
         CoEventItem* Next;      // 后一个元素
 
-        CoEventItemIink* link;  // 此item所属链表
+        CoEventItemIink* Link;  // 此item所属链表
 
         std::function<void(CoEventItem*, struct epoll_event&,CoEventItemIink*)> CoPrepare; //epoll中执行的云处理函数
         std::function<void(CoEventItem*)> CoPrecoss;        //epoll中执行的回调函数
@@ -71,7 +72,7 @@ namespace RocketCo {
         struct ::epoll_event Event; // 对应epoll的事件
     };
 
-    struct Stpoll_t{
+    struct Stpoll_t : public CoEventItem{
         int epfd;                   // epoll fd
         int IsHandle;               // 所有的事件是否已经被处理的
         int RaisedNumber;           // 已经被触发的事件数
@@ -80,20 +81,132 @@ namespace RocketCo {
         struct pollfd *fds;         // 指向poll传进来的全部事件
         StPollItem* WillJoinEpoll;  // 将会传递给epoll的事件集
 
-        std::function<void(CoEventItem*)> CoPrecoss;
-        void* ItemCo;
         //https://en.cppreference.com/w/cpp/chrono/time_point
-        std::chrono::system_clock::time_point ExpireTime;   // 记录超时时间
+        std::uint64_t ExpireTime;   // 记录超时时间
 
         Stpoll_t(nfds_t nfds_, int epfd_, struct pollfd *fds_)
                 :epfd(epfd_), nfds(nfds_), fds(fds_), IsHandle(0), RaisedNumber(0){
         }
     };
 
+    std::uint64_t get_mill_time_stamp() {
+        std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> tp = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+        auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+        return tmp.count();
+    }
+
+    template <class T,class TLink>
+    void RemoveFromWheel(T *ap){
+        TLink *lst = ap->Link;
+        if(!lst) return ;
+        assert( lst->head && lst->tail );
+
+        if( ap == lst->head ){
+            lst->head = ap->Next;
+            if(lst->head){
+                lst->head->Prev = nullptr;
+            }
+        } else {
+            if(ap->Prev){
+                ap->Prev->Next = ap->Next;
+            }
+        }
+
+        if( ap == lst->tail ){
+            lst->tail = ap->Prev;
+            if(lst->tail){
+                lst->tail->Next = nullptr;
+            }
+        } else {
+            ap->Next->Prev = ap->Prev;
+        }
+
+        // 设置为nullptr,保证可重入
+        ap->Prev = ap->Next = nullptr;
+        ap->Link = nullptr;
+    }
+
+    template <class TNode,class TLink>
+    void inline AddTail(TLink*apLink,TNode *ap){
+        if( ap->Link ){
+            return ;
+        }
+        if(apLink->tail){
+            apLink->tail->Next = (TNode*)ap;
+            ap->Next = nullptr;
+            ap->Prev = apLink->tail;
+            apLink->tail = ap;
+        } else {
+            apLink->head = apLink->tail = ap;
+            ap->Next = ap->Prev = nullptr;
+        }
+        ap->Link = apLink;
+    }
+
+    // 一个时间轮
+    class TimeWheel{
+    private:
+        std::vector<CoEventItemIink*> Wheel;// 当做一个循环链表使
+        std::uint64_t Start;                // 时间轮中目前记录的最早时间
+        std::int64_t Index;                 // 最早时间对应的下标
+        static constexpr const int DefaultSize = 60 * 60 * 24 * 1000;
+    public:
+        explicit TimeWheel(int Length){
+            if(Length < 0) Length = 0;
+            Wheel.resize(Length);
+        }
+
+        TimeWheel(){
+            Wheel.resize(DefaultSize);
+        }
+
+        /*
+         * 1. 此函数可能抛出异常,插入的时候要catch一下
+         * 2. 这个函数可以根据返回值来判断函数是否执行成功,0为成功,其他为出现错误
+         * */
+        int AddTimeOut(Stpoll_t* ItemList, std::uint64_t Now){
+            if(Start == 0){ // 第一次插入事件
+                Start = Now;
+                Index = 0;
+            }
+            if(Now < Start){ // 只可能等于或者大于
+                std::cerr << "ERROR : TimeWheel.AddTimeOut Insertion time is less than initial time.";
+                return __LINE__;
+            }
+
+            // 插入的时间已经小于插入时间的超时时间,直接返回即可
+            if(ItemList->ExpireTime < Now){
+                std::cerr << "ERROR : TimeWheel.AddTimeOut Insertion time is greater than timeout.";
+                return __LINE__;
+            }
+
+            std::int64_t interval = ItemList->ExpireTime - Start; // 还有多长时间超时
+            if(interval >= DefaultSize){
+                std::cerr << "ERROR : TimeWheel.AddTimeOut Timeout is greater than Timewheel default size.";
+                return __LINE__;
+            }
+
+            AddTail(Wheel[(Index + interval)%Wheel.size()], ItemList);
+
+            return 0;
+        }
+
+        ~TimeWheel(){
+            for (int i = 0; i < Wheel.size(); ++i) {
+                if(Wheel[i] != nullptr){
+                    delete Wheel[i];
+                }
+            }
+        }
+    };
+
     #define MaximumNumberOfCoroutinesAllowed 256
 
+    class TimeWheel;
     struct Co_Epoll{
         Epoll* epoll_t;       // 封装的一个epoll
+
+        TimeWheel TW;
 
         struct CoEventItemIink* ActiveLink;     // 正常的事件链表
         struct CoEventItemIink* TimeoutLink;    // 超时事件链表
@@ -105,7 +218,6 @@ namespace RocketCo {
 
         Co_Epoll* Epoll_;
 
-        // TODO 少一个时间轮
         // 对调用栈中协程实体的一个拷贝,为了减少共享栈上数据的拷贝
         // 如果不加的话,我们需要O(N)的时间复杂度分清楚
         // Callback中current上一个共享栈的协程实体(可能共享栈与默认模式混合)
@@ -355,13 +467,40 @@ namespace RocketCo {
         return res;
     }
 
+    static short EventEpoll2Poll(uint32_t events){
+        short res;
+        if( events & POLLIN ) 	  res |= EPOLLIN;
+        if( events & POLLOUT )    res |= EPOLLOUT;
+        if( events & POLLHUP ) 	  res |= EPOLLHUP;
+        if( events & EPOLLRDHUP)  res |= EPOLLRDHUP;
+        if( events & POLLERR )	  res |= EPOLLERR;
+        if( events & POLLRDNORM ) res |= EPOLLRDNORM;
+        if( events & POLLWRNORM ) res |= EPOLLWRNORM;
+        // 还有一些事件是epoll有poll没有,就没啥必要写了
+        return res;
+    }
+
+    void CoPrepare_(CoEventItem* CoItem, struct epoll_event &ev, CoEventItemIink* active){
+        StPollItem* Item = static_cast<StPollItem*>(CoItem);
+
+        Item->pSelf->revents = EventPoll2Epoll(ev.events);
+
+        Stpoll_t* poll_ = Item->Stpoll;
+        poll_->RaisedNumber++;
+        if(!poll_->IsHandle){
+            poll_->IsHandle = true;
+            RemoveFromWheel< CoEventItem,CoEventItemIink>(poll_); // 其实在回调回去以后也会执行这一步
+            AddTail(active, poll_); // 将poll_加入到active队列中
+        }
+    }
+
     constexpr const int ShortItemOptimization = 2;
     int Co_poll_inner(Co_Epoll* Epoll_, struct pollfd fds[], nfds_t nfds, int timeout, Poll_fun pollfunc){
-        // TODO 获取epoll fd, 不一定有必要
         int epfd = Epoll_->epoll_t->fd();
         Co_Entity* self = GetCurrentCoEntity(); // 获取当前运行的协程
 
         auto Temp = new pollfd[nfds];
+        //TODO 这里fds是否有必有直接拷贝 我们直接把fds指针赋值一下不行吗
         Stpoll_t* poll_ = new Stpoll_t(nfds, epfd, Temp);
 
         // 数据量小的时候的一个优化,模仿std::string
@@ -379,17 +518,17 @@ namespace RocketCo {
 
         // 把poll事件添加到epoll中
         for(int i = 0; i < nfds; ++i){
-            poll_->WillJoinEpoll[i].pSelf = poll_->fds + i;
-            poll_->WillJoinEpoll[i].Stpoll = poll_;
-            poll_->WillJoinEpoll[i].CoPrepare;
+            poll_->WillJoinEpoll[i].pSelf     = poll_->fds + i;
+            poll_->WillJoinEpoll[i].Stpoll    = poll_;
+            poll_->WillJoinEpoll[i].CoPrepare = CoPrepare_;
 
             struct ::epoll_event& ev = poll_->WillJoinEpoll[i].Event;
 
             if(fds[i].fd > -1){ // 如果套接字有效的话
                 ev.data.ptr = poll_->WillJoinEpoll + i; // 在事件发生的时候使用
-                ev.events = EventPoll2Epoll(fds[i].events);
+                ev.events   = EventPoll2Epoll(fds[i].events);
                 // 把此事件插入epoll
-                int ret = Epoll_->epoll_t->Add({fds[i].fd, static_cast<EpollEventType>(ev.events)});
+                int ret = epoll_ctl( epfd,EPOLL_CTL_ADD, fds[i].fd, &ev );
 
                 if(ret < 0 && errno != EAGAIN && nfds <= ShortItemOptimization && pollfunc != nullptr){
                     // 显然小于等于ShortItemOptimization的时候不会给poll_->WillJoinEpoll分配内存
@@ -403,13 +542,43 @@ namespace RocketCo {
 
         // 添加到定时器中
 
+        // 精度为毫秒
         auto Now = std::chrono::system_clock::now(); // 获取当前事件
-        // std::ratio基本单位为秒
-        std::chrono::duration<int, std::ratio<1,1> > TimeOut(timeout);
-        poll_->ExpireTime = Now + TimeOut;
+        // std::ratio设置基本单位为毫秒
+        std::chrono::duration<int, std::ratio<1,1000> > TimeOut(timeout);
+        poll_->ExpireTime = (Now + TimeOut).time_since_epoch().count();
 
-        // TODO 6.10的任务是定时器
+        // 指定当前时间, 把此次poll中的时间插入到时间轮中,且所有事件超时时间相同
+        int ret = Epoll_->TW.AddTimeOut(poll_, Now.time_since_epoch().count());
 
+        // 此次被触发或者超时的事件数
+        int RaisedNumber = 0;
+        if(ret != 0){
+            RaisedNumber = -1;
+        } else { // 等于零的话说明上面插入正常,否则的话在ret那一行出现了错误
+            Co_yeild(get_thisThread_Env()); // 切出时间片，因为此时应该阻塞了，当事件ok的时候会执行回调切回来
+
+            RaisedNumber = poll_->RaisedNumber; // 在epoll中触发回调时修改
+        }
+
+        // 已经执行完，这里把这些事件从时间轮和epoll中去除。
+        RemoveFromWheel< CoEventItem,CoEventItemIink>(poll_);
+
+        for (int i = 0; i < nfds; ++i){
+            int fd = fds[i].fd;
+            epoll_ctl(epfd, EPOLL_CTL_DEL, fd, &poll_->WillJoinEpoll[i].Event);
+            fds[i].revents = poll_->fds[i].revents;
+        }
+
+        if(poll_->WillJoinEpoll != array){
+            delete [] poll_->WillJoinEpoll;
+            poll_->WillJoinEpoll = nullptr;
+        }
+
+        delete [] Temp; // poll_->fds
+        delete poll_;
+
+        return RaisedNumber; // 返回成功或者超时的事件数
     }
 
     // TODO 等完成poll的一系列操作以后再来写下面两个函数
