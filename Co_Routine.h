@@ -21,6 +21,7 @@ namespace RocketCo{
     struct Co_Entity;
     struct Co_Rountinue_Env;
     struct Co_Attribute;
+    struct ConditionVariableLink;
 
     // 函数声明
 
@@ -34,6 +35,14 @@ namespace RocketCo{
 
     int Co_poll_inner(Co_Epoll* Epoll_, struct pollfd fds[], nfds_t nfds, int timeout, Poll_fun pollfunc);
 
+    void EventLoop(Co_Epoll* Epoll_, const Co_EventLoopFun& fun, void* args);
+
+    ConditionVariableLink* ConditionVariableInit();
+    void ConditionVariableFree(ConditionVariableLink* CV);
+
+    int ConditionVariableWait(ConditionVariableLink* CV, int TimeOut);
+    int ConditionVariableSignal(ConditionVariableLink* CV);
+    int ConditionVariableBroadcast(ConditionVariableLink* CV);
 }
 
 #endif //ROCKETCO_CO_ROUTINE_H

@@ -4,7 +4,6 @@
 
 #include "Co_Routine.h"
 #include "Co_Entity.h"
-#include "hook.h"
 
 #include <poll.h>
 #include <dlfcn.h>

@@ -22,7 +22,8 @@ namespace RocketCo {
         struct Co_Rountinue_Env* env;  // 协程的执行环境,运行在同一个线程上的各协程是共享该结构,每个线程只有一个
 
         void* arg;              // 函数参数
-        Co_RealFun fun;         // 协程实际执行的函数,当然是经过包装的,因为在执行完成以后需要切换协程
+        //Co_RealFun fun;         // 协程实际执行的函数,当然是经过包装的,因为在执行完成以后需要切换协程
+        std::function<void*(void*)> fun;
 
         co_swap_t cst;          // 协程上下文实体
 

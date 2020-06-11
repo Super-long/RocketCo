@@ -212,7 +212,7 @@ namespace RocketCo {
          * 1. 此函数可能抛出异常,插入的时候要catch一下
          * 2. 这个函数可以根据返回值来判断函数是否执行成功,0为成功,其他为出现错误
          * */
-        int AddTimeOut(Stpoll_t* ItemList, std::uint64_t Now){
+        int AddTimeOut(CoEventItem* ItemList, std::uint64_t Now){
             if(Start == 0){ // 第一次插入事件
                 Start = Now;
                 Index = 0;
@@ -471,6 +471,10 @@ namespace RocketCo {
         }
     }
 
+    void Co_yeild(){
+        Co_yeild(get_thisThread_Env());
+    }
+
     void Co_yeild(Co_Rountinue_Env* env){
         Co_Entity* pending = env->Co_CallBack[env->Co_ESP - 2];
         Co_Entity* current = env->Co_CallBack[env->Co_ESP - 1];
@@ -638,7 +642,7 @@ namespace RocketCo {
         }
 
         // 已经执行完，这里把这些事件从时间轮和epoll中去除。
-        RemoveFromWheel< CoEventItem,CoEventItemIink>(poll_);
+        RemoveFromWheel<CoEventItem,CoEventItemIink>(poll_);
 
         for (int i = 0; i < nfds; ++i){
             int fd = fds[i].fd;
@@ -722,6 +726,99 @@ namespace RocketCo {
                 }
             }
         }
+    }
+    // --------------------------
+    // 条件变量相关实现,没有办法直接hook,因为没办法放到epoll中,所以需要实现一下
+    struct ConditionVariableLink;
+    struct ConditionVariableItem{
+        ConditionVariableItem* Prev;
+        ConditionVariableItem* Next;
+        ConditionVariableLink* Link;
+
+        CoEventItem Item;       // 使得条件变量可以加到epoll中
+    };
+
+    struct ConditionVariableLink{
+        ConditionVariableItem* head;
+        ConditionVariableItem* tail;
+    };
+
+    ConditionVariableLink* ConditionVariableInit(){
+        ConditionVariableLink* Temp = nullptr;
+        try {
+            Temp = new ConditionVariableLink();
+        }catch (const std::bad_alloc& err){
+            std::cerr << err.what() << std::endl;
+            return nullptr;
+        }
+        return Temp;
+    }
+
+    void ConditionVariableFree(ConditionVariableLink* CV){
+        delete CV;
+    }
+
+    // 一个条件变量的实体;超时时间; pthread_cond_wait
+    int ConditionVariableWait(ConditionVariableLink* CV, int TimeOut){
+        ConditionVariableItem* Item = new ConditionVariableItem();
+        Item->Item.ItemCo = GetCurrentCoEntity();
+        // 设置epoll中的回调,其实就是切换协程的执行权
+        Item->Item.CoPrecoss = [](CoEventItem* Co){Co_resume(Co->ItemCo);};
+
+        if(TimeOut > 0){
+            std::uint64_t Now = get_mill_time_stamp();
+            Item->Item.ExpireTime = Now + TimeOut;
+
+            // 当我们调用完AddTimeOut要根据返回值查看调用是否成功
+            int ret = get_thisThread_Env()->Epoll_->TW.AddTimeOut(&(Item->Item), Now);
+            if(ret != 0){
+                delete Item;
+                std::cerr << "ERROR : ConditionVariableWait, Call AddTimeOut error.\n";
+                return ret;
+            }
+            AddTail(CV, Item);
+
+            Co_yeild(); // 切换CPU执行权,在epoll中触发peocess回调以后回到这里
+
+            // 这个条件要么被触发,要么已经超时,从条件变量实体中删除
+            RemoveFromWheel<ConditionVariableItem, ConditionVariableLink>(Item);
+
+            delete Item;
+        }
+    }
+
+    ConditionVariableItem* PopFromLink(ConditionVariableLink* CV){
+        ConditionVariableItem* Temp = CV->head;
+        if(Temp){
+            PopHead<ConditionVariableItem, ConditionVariableLink>(CV);
+        }
+        return Temp;
+    }
+    // 类似于pthread_cond_signal
+    int ConditionVariableSignal(ConditionVariableLink* CV){
+        ConditionVariableItem* Head = PopFromLink(CV);
+        if(!Head){
+            return -1; // 一个非阻塞的函数,当队列中不存在事件的时候返回
+        }
+        //
+        RemoveFromWheel<CoEventItem,CoEventItemIink>(&(Head->Item));
+
+        // 加到active队列中,在下一轮epoll_wait中处理.调用process回调,回到ConditionVariableWait中
+        AddTail(get_thisThread_Env()->Epoll_->ActiveLink, &(Head->Item));
+
+        return 0; // 正常返回,返回值为0
+    }
+
+    // 类似于pthread_cond_Broadcast,唤醒目前条件变量中的所有事件
+    int ConditionVariableBroadcast(ConditionVariableLink* CV){
+        while(true){
+            ConditionVariableItem* Head = PopFromLink(CV);
+            if(Head == nullptr) break;
+            RemoveFromWheel<CoEventItem,CoEventItemIink>(&(Head->Item));
+
+            AddTail(get_thisThread_Env()->Epoll_->ActiveLink, &(Head->Item));
+        }
+        return 0;
     }
     // --------------------------
 }
