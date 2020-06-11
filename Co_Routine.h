@@ -15,7 +15,7 @@ namespace RocketCo{
     using Co_RealFun = std::function<void*(void*)>;
     // 时间循环每一次循环后可能需要的函数,自选,可用作统计,终止主协程等作用
     //using Co_EventLoopFun = std::function<void*(void*)>;
-    typedef void*(*Co_EventLoopFun)(void*); // 需要判空,function需要转换一下,太麻烦
+    typedef int(*Co_EventLoopFun)(void*); // 需要判空,function需要转换一下,太麻烦
 
     struct Co_ShareStack;
     struct Co_Entity;

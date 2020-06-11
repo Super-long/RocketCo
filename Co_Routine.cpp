@@ -53,8 +53,11 @@ namespace RocketCo {
 
         CoEventItemIink* Link;  // 此item所属链表
 
-        std::function<void(CoEventItem*, struct epoll_event&,CoEventItemIink*)> CoPrepare; //epoll中执行的云处理函数
+        std::function<void(CoEventItem*, struct epoll_event*,CoEventItemIink*)> CoPrepare; //epoll中执行的云处理函数
         std::function<void(CoEventItem*)> CoPrecoss;        //epoll中执行的回调函数
+
+        //https://en.cppreference.com/w/cpp/chrono/time_point
+        std::uint64_t ExpireTime;   // 记录超时时间 eventloop中使用
 
         Co_Entity* ItemCo;   // 当前项所属的协程
         bool IsTimeout; // 标记这个事件是否已经超时
@@ -81,9 +84,6 @@ namespace RocketCo {
         struct pollfd *fds;         // 指向poll传进来的全部事件
         StPollItem* WillJoinEpoll;  // 将会传递给epoll的事件集
 
-        //https://en.cppreference.com/w/cpp/chrono/time_point
-        std::uint64_t ExpireTime;   // 记录超时时间
-
         Stpoll_t(nfds_t nfds_, int epfd_, struct pollfd *fds_)
                 :epfd(epfd_), nfds(nfds_), fds(fds_), IsHandle(0), RaisedNumber(0){
         }
@@ -95,6 +95,7 @@ namespace RocketCo {
         return tmp.count();
     }
 
+    // 链表中删除一个元素
     template <class T,class TLink>
     void RemoveFromWheel(T *ap){
         TLink *lst = ap->Link;
@@ -126,6 +127,7 @@ namespace RocketCo {
         ap->Link = nullptr;
     }
 
+    // 尾插
     template <class TNode,class TLink>
     void inline AddTail(TLink*apLink,TNode *ap){
         if( ap->Link ){
@@ -143,11 +145,57 @@ namespace RocketCo {
         ap->Link = apLink;
     }
 
+    // 合并链表 把apOther插入apLink
+    template <class TNode,class TLink>
+    void inline Join( TLink*apLink,TLink *apOther )
+    {
+        if( !apOther->head ){
+            return ;
+        }
+        TNode *lp = apOther->head;
+        while( lp ){
+            lp->Link = apLink;
+            lp = lp->Next;
+        }
+        lp = apOther->head;
+        if(apLink->tail){
+            apLink->tail->Next = (TNode*)lp;
+            lp->Prev = apLink->tail;
+            apLink->tail = apOther->tail;
+        } else {
+            apLink->head = apOther->head;
+            apLink->tail = apOther->tail;
+        }
+
+        apOther->head = apOther->tail = NULL;
+    }
+
+    template <class TNode,class TLink>
+    void inline PopHead( TLink*apLink )
+    {
+        if( !apLink->head ){
+            return ;
+        }
+        TNode *lp = apLink->head;
+        if( apLink->head == apLink->tail ){
+            apLink->head = apLink->tail = NULL;
+        } else {
+            apLink->head = apLink->head->Next;
+        }
+
+        lp->Prev = lp->Next = NULL;
+        lp->Link = NULL;
+
+        if( apLink->head ){
+            apLink->head->Prev = NULL;
+        }
+    }
+
     // 一个时间轮
     class TimeWheel{
     private:
         std::vector<CoEventItemIink*> Wheel;// 当做一个循环链表使
-        std::uint64_t Start;                // 时间轮中目前记录的最早时间
+        std::uint64_t Start;                // 时间轮中目前记录的最早时间,即调用的最早时机
         std::int64_t Index;                 // 最早时间对应的下标
         static constexpr const int DefaultSize = 60 * 60 * 24 * 1000;
     public:
@@ -170,25 +218,54 @@ namespace RocketCo {
                 Index = 0;
             }
             if(Now < Start){ // 只可能等于或者大于
-                std::cerr << "ERROR : TimeWheel.AddTimeOut Insertion time is less than initial time.";
+                std::cerr << "ERROR : TimeWheel.AddTimeOut Insertion time is less than initial time.\n";
                 return __LINE__;
             }
 
             // 插入的时间已经小于插入时间的超时时间,直接返回即可
             if(ItemList->ExpireTime < Now){
-                std::cerr << "ERROR : TimeWheel.AddTimeOut Insertion time is greater than timeout.";
+                std::cerr << "ERROR : TimeWheel.AddTimeOut Insertion time is greater than timeout.\n";
                 return __LINE__;
             }
 
             std::int64_t interval = ItemList->ExpireTime - Start; // 还有多长时间超时
             if(interval >= DefaultSize){
-                std::cerr << "ERROR : TimeWheel.AddTimeOut Timeout is greater than Timewheel default size.";
+                std::cerr << "ERROR : TimeWheel.AddTimeOut Timeout is greater than Timewheel default size.\n";
                 return __LINE__;
             }
 
             AddTail(Wheel[(Index + interval)%Wheel.size()], ItemList);
 
             return 0;
+        }
+
+        // 取出时的时间;把事件取出以后放入TimeOut链表
+        void TakeOutTimeout(std::uint64_t Now, CoEventItemIink* TimeOut){
+            if(Start == 0){ // 第一次插入事件
+                Start = Now;
+                Index = 0;
+            }
+            if(Now < Start){ // 只可能等于或者大于
+                std::cerr << "ERROR : TimeWheel.TakeOutTimeout Take out time is less than initial time.\n";
+                return;
+            }
+            // 记录Now到Start时间段区间,因为可能超过了时间轮本身的区间长度,不过一般情况下不会发生
+            int interval = Now - Start + 1;
+            if(interval > Wheel.size()){
+                interval = Wheel.size();
+            }
+            if(interval <= 0){ // 显然当Now小于Start的时候就是发生了错误，需要退出
+                std::cerr << "ERROR : TimeWheel.TakeOutTimeout Take out time is greater than timeout.\n";
+                return;
+            }
+            // 现在Start到Now中间的区间中如果存在数据就是超时的
+            for (int i = 0; i < interval; ++i) {
+                int index = (Index + i) % Wheel.size();
+                Join<CoEventItem, CoEventItemIink>(TimeOut, Wheel[index]);
+            }
+            // 更新必要的数据
+            Start = Now;
+            Index += interval - 1;
         }
 
         ~TimeWheel(){
@@ -480,17 +557,18 @@ namespace RocketCo {
         return res;
     }
 
-    void CoPrepare_(CoEventItem* CoItem, struct epoll_event &ev, CoEventItemIink* active){
+    void CoPrepare_(CoEventItem* CoItem, struct epoll_event *ev, CoEventItemIink* active){
         StPollItem* Item = static_cast<StPollItem*>(CoItem);
 
-        Item->pSelf->revents = EventPoll2Epoll(ev.events);
+        Item->pSelf->revents = EventPoll2Epoll(ev->events);
 
         Stpoll_t* poll_ = Item->Stpoll;
         poll_->RaisedNumber++;
         if(!poll_->IsHandle){
             poll_->IsHandle = true;
             RemoveFromWheel< CoEventItem,CoEventItemIink>(poll_); // 其实在回调回去以后也会执行这一步
-            AddTail(active, poll_); // 将poll_加入到active队列中
+            //这里加入Item和poll_一样
+            AddTail(active, CoItem); // 将poll_加入到active队列中
         }
     }
 
@@ -543,13 +621,11 @@ namespace RocketCo {
         // 添加到定时器中
 
         // 精度为毫秒
-        auto Now = std::chrono::system_clock::now(); // 获取当前事件
-        // std::ratio设置基本单位为毫秒
-        std::chrono::duration<int, std::ratio<1,1000> > TimeOut(timeout);
-        poll_->ExpireTime = (Now + TimeOut).time_since_epoch().count();
+        std::uint64_t Now = get_mill_time_stamp();
+        poll_->ExpireTime = Now + timeout*1000;
 
         // 指定当前时间, 把此次poll中的时间插入到时间轮中,且所有事件超时时间相同
-        int ret = Epoll_->TW.AddTimeOut(poll_, Now.time_since_epoch().count());
+        int ret = Epoll_->TW.AddTimeOut(poll_, Now);
 
         // 此次被触发或者超时的事件数
         int RaisedNumber = 0;
@@ -588,6 +664,14 @@ namespace RocketCo {
         }
     }
 
+    void SetUpTimepoutLable(CoEventItemIink* Timeout){
+        CoEventItem* item = Timeout->head;
+        while(item){
+            item->IsTimeout = true;
+            item = item->Next;
+        }
+    }
+
     // 主协程最终会运行到这里
     void EventLoop(Co_Epoll* Epoll_, const Co_EventLoopFun& fun, void* args){
 
@@ -595,21 +679,49 @@ namespace RocketCo {
         EpollEvent_Result Event_Reault(DefaultEpollEventSize());
 
         while(true){
-            Epoll_->epoll_t->Epoll_Wait(Event_Reault);
+            Epoll_->epoll_t->Epoll_Wait(Event_Reault, 1);
 
             CoEventItemIink* active  = Epoll_->ActiveLink;
             CoEventItemIink* timeout = Epoll_->TimeoutLink;
 
             for(int i = 0; i < Event_Reault.size(); ++i) {
                 CoEventItem* item = (CoEventItem*)Event_Reault[i].Return_Pointer()->data.ptr;
-                EveryLoopPrepare(item);
+                if(item->CoPrepare){
+                    // 从时间轮中去除，并更新标记位
+                    item->CoPrepare(item, Event_Reault[i].Return_Pointer(), active);
+                } else {
+                    AddTail(active, item);
+                }
+            }
+            std::uint64_t Now = get_mill_time_stamp();
+            // 把时间轮中的超时事件插入到timeout链表中
+            Epoll_->TW.TakeOutTimeout(Now, timeout);
+            SetUpTimepoutLable(timeout);
+            Join<CoEventItem, CoEventItemIink>(active, timeout);
 
-                // TODO 先完成时间轮和poll的hook
+            CoEventItem* item = active->head;
+            // 对active链表中的数据做处理,可能为超时事件或者就绪事件,
+            while(item){
+                PopHead<CoEventItem, CoEventItemIink>(active);
+                // 两个条件不可能同时满足
+                if(item->IsTimeout && Now < item->ExpireTime){
+                    std::cerr << "ERROR : EventLoop Unexpected error.\n";
+                }
+                if(item->CoPrecoss){
+                    // 回调执行Co_resume
+                    item->CoPrecoss(item);
+                }
+                item = active->head;
+            }
+            // 一遍循环走完active和timeout都空了
 
+            // 用于自定义行为,不设定的话就不会退出了
+            if(fun){
+                if(fun(args) == -1){
+                    break;
+                }
             }
         }
-
     }
-
     // --------------------------
 }

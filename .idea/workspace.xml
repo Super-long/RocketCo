@@ -60,7 +60,8 @@
       <workItem from="1591580083025" duration="674000" />
       <workItem from="1591580779385" duration="26549000" />
       <workItem from="1591664843345" duration="28594000" />
-      <workItem from="1591759171027" duration="10756000" />
+      <workItem from="1591759171027" duration="12303000" />
+      <workItem from="1591837678162" duration="8726000" />
     </task>
     <servers />
   </component>
@@ -72,13 +73,17 @@
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
     <state x="693" y="289" width="524" height="507" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591694042924" />
-    <state x="618" y="367" key="com.intellij.ide.util.TipDialog" timestamp="1591759171351">
+    <state width="498" height="447" key="SwitcherDM" timestamp="1591838291689">
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
-    <state x="618" y="367" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591759171351" />
-    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup" timestamp="1591788823516">
+    <state width="498" height="447" key="SwitcherDM/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591838291689" />
+    <state x="618" y="367" key="com.intellij.ide.util.TipDialog" timestamp="1591837856989">
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
-    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591788823516" />
+    <state x="618" y="367" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591837856989" />
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup" timestamp="1591842933369">
+      <screen x="0" y="0" width="1920" height="1030" />
+    </state>
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591842933369" />
   </component>
 </project>
