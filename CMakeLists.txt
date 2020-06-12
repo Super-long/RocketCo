@@ -1,10 +1,15 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.11)
 project(RocketCo)
 
 set(CMAKE_CXX_STANDARD 14)
+
+enable_language(C ASM)
+
+link_libraries(-ldl) # 防止dlsym出现未定义的引用
+
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
 add_executable(RocketCo main.cpp
-        coswap.h coswap.cpp
+        coswap.h coswap.cpp coctx_swap.S
         Co_Entity.h Co_Routine.h Co_Routine.cpp
         Base/havefd.h Base/copyable.h Base/nocopyable.h
         EpollWrapper/address.h EpollWrapper/address.cpp

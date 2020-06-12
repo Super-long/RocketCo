@@ -131,4 +131,7 @@ namespace RocketCo {
     void co_swap_init(co_swap_t* cst){
         bzero(cst, sizeof *cst);
     }
+
+    #endif
+
 }

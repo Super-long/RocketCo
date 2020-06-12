@@ -117,6 +117,9 @@
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/EpollWrapper/epoll_event_result.h">
 			<Option target="RocketCo"/>
 		</Unit>
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coctx_swap.S">
+			<Option target="RocketCo"/>
+		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coswap.cpp">
 			<Option target="RocketCo"/>
 		</Unit>

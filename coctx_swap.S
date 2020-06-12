@@ -5,7 +5,7 @@
 #endif
 coctx_swap:
 
-#if defined(__i386__) ;保存当前寄存器的值到第一个参数中
+#if defined(__i386__) //;保存当前寄存器的值到第一个参数中
     movl 4(%esp), %eax ;这里ESP获取到的是对应图中old %EIP的地址 句话保存到reg[0] 
     movl %esp,  28(%eax) ;第八个值 这个位置本来是函数调用的返回地址 reg[7]存储栈帧 下面以此类推
     movl %ebp, 24(%eax)

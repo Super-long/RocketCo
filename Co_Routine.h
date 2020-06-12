@@ -12,6 +12,8 @@
 namespace RocketCo{
 
     // 协程实际执行的函数类型
+    using Poll_fun = std::function<int(struct pollfd fds[], nfds_t nfds, int timeout)>; // 用于Co_poll_inner
+
     using Co_RealFun = std::function<void*(void*)>;
     // 时间循环每一次循环后可能需要的函数,自选,可用作统计,终止主协程等作用
     //using Co_EventLoopFun = std::function<void*(void*)>;
@@ -19,6 +21,7 @@ namespace RocketCo{
 
     struct Co_ShareStack;
     struct Co_Entity;
+    struct Co_Epoll;
     struct Co_Rountinue_Env;
     struct Co_Attribute;
     struct ConditionVariableLink;
@@ -43,6 +46,9 @@ namespace RocketCo{
     int ConditionVariableWait(ConditionVariableLink* CV, int TimeOut);
     int ConditionVariableSignal(ConditionVariableLink* CV);
     int ConditionVariableBroadcast(ConditionVariableLink* CV);
+
 }
+// --------------------------- 特殊的函数
+void co_enable_hook_sys();
 
 #endif //ROCKETCO_CO_ROUTINE_H

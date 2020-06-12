@@ -177,6 +177,15 @@ EpollWrapper/address.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.s
 .PHONY : EpollWrapper/address.cpp.s
 
+coctx_swap.o: coctx_swap.S.o
+
+.PHONY : coctx_swap.o
+
+# target to build an object file
+coctx_swap.S.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coctx_swap.S.o
+.PHONY : coctx_swap.S.o
+
 coswap.o: coswap.cpp.o
 
 .PHONY : coswap.o
@@ -273,6 +282,7 @@ help:
 	@echo "... EpollWrapper/address.o"
 	@echo "... EpollWrapper/address.i"
 	@echo "... EpollWrapper/address.s"
+	@echo "... coctx_swap.o"
 	@echo "... coswap.o"
 	@echo "... coswap.i"
 	@echo "... coswap.s"

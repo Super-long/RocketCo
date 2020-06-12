@@ -5,12 +5,17 @@
 #include "Co_Routine.h"
 #include "Co_Entity.h"
 
-#include <poll.h>
+
 #include <dlfcn.h>
+#include <poll.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+#include <map>
 #include <iterator>
 #include <unordered_map>
 
-namespace RocketCo{
+#include <iostream>
 
     // ------------------------------------
     // hook前的函数声明
@@ -36,11 +41,11 @@ namespace RocketCo{
         HOOK_SYS_FUNC(poll);
 
         // 要么这个协程没有被hook, 要么这个poll本来就是非阻塞的
-        if(!GetCurrentCoIsHook() || !timeout){ // 等于零的时候当做非阻塞
+        if(!RocketCo::GetCurrentCoIsHook() || !timeout){ // 等于零的时候当做非阻塞
             return Hook_poll_t(fds, nfds, timeout);
         }
 
-        if(timeout < 0){ // 当小于零的时候视为无限延迟 timeout的其他情况就都是有意义的了
+        if(timeout < 0){ // 当小于零的时候视为无限延迟 timeout的情况就都是有意义的了
             timeout = INT32_MAX;
         }
 
@@ -67,10 +72,11 @@ namespace RocketCo{
         }
         // 此时index为合并后的事件数
         int Readly_size = 0;
-        if(nfds == index || nfds < 2){
-            Readly_size = Co_poll_inner(GetCurrentCoEpoll, fds, nfds, timeout, Hook_poll_t);
+        if(nfds == index || nfds < 2){ // 没有执行合并
+            //std::cout << "进入 Co_poll_inner\n";
+            Readly_size = Co_poll_inner(RocketCo::GetCurrentCoEpoll(), fds, nfds, timeout, Hook_poll_t);
         } else {
-            Readly_size = Co_poll_inner(GetCurrentCoEpoll(), merge, index, timeout, Hook_poll_t);
+            Readly_size = Co_poll_inner(RocketCo::GetCurrentCoEpoll(), merge, index, timeout, Hook_poll_t);
             // 把事件还原一下
             if(Readly_size > 0){ // 有事件返回,要么是超时事件,要么是注册的事件被触发
                 for (int i = 0; i < nfds; ++i) {
@@ -86,9 +92,8 @@ namespace RocketCo{
 
     // 包含了这个函数才会把hook.cpp中的内容链接到源程序中,从而完成hook
     void co_enable_hook_sys(){
-        Co_Entity* Co = GetCurrentCoEntity();
+        RocketCo::Co_Entity* Co = RocketCo::GetCurrentCoEntity();
         if(Co){
             Co->IsHook = true;
         }
     }
-}
