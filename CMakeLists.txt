@@ -8,7 +8,7 @@ enable_language(C ASM)
 link_libraries(-ldl) # 防止dlsym出现未定义的引用
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
-add_executable(RocketCo main.cpp
+add_executable(RocketCo example/ShareStack.cpp
         coswap.h coswap.cpp coctx_swap.S
         Co_Entity.h Co_Routine.h Co_Routine.cpp
         Base/havefd.h Base/copyable.h Base/nocopyable.h

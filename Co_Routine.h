@@ -19,11 +19,30 @@ namespace RocketCo{
     //using Co_EventLoopFun = std::function<void*(void*)>;
     typedef int(*Co_EventLoopFun)(void*); // 需要判空,function需要转换一下,太麻烦
 
-    struct Co_ShareStack;
+    // 多栈可以使得我们在进程切换的时候减少拷贝次数
+    // 写成结构体+函数相比与class来说还有一个优点,就是不用把类的定义放在.h中
+    struct Co_ShareStack{
+        unsigned int alloc_idx;		    // stack_array中我们在下一次调用中应该使用的那个共享栈的index
+        int stack_size;				    // 共享栈的大小，这里的大小指的是一个stStackMem_t*的大小
+        int count;					    // 共享栈的个数，共享栈可以为多个，所以以下为共享栈的数组
+        Co_Stack_Member** stack_array;	// 栈的内容，这里是个数组，元素是stStackMem_t*
+
+        static constexpr const int DefaultStackSize = 128 * 1024;
+
+        explicit Co_ShareStack(int Count, int Stack_size = DefaultStackSize);
+        ~Co_ShareStack();
+    };
+
+    struct Co_Attribute{
+        static constexpr const int Default_StackSize = 128 * 1024;      // 128KB
+        static constexpr const int Maximum_StackSize = 8 * 1024 * 1024; // 8MB
+        int stack_size = Default_StackSize;              // 规定栈的大小
+        Co_ShareStack* shareStack = nullptr;    // 默认为不共享
+    };
+
+    struct Co_Rountinue_Env;
     struct Co_Entity;
     struct Co_Epoll;
-    struct Co_Rountinue_Env;
-    struct Co_Attribute;
     struct ConditionVariableLink;
 
     // 函数声明

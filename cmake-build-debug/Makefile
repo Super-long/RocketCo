@@ -213,6 +213,60 @@ coswap.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.s
 .PHONY : coswap.cpp.s
 
+example/ProductConsumers.o: example/ProductConsumers.cpp.o
+
+.PHONY : example/ProductConsumers.o
+
+# target to build an object file
+example/ProductConsumers.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ProductConsumers.cpp.o
+.PHONY : example/ProductConsumers.cpp.o
+
+example/ProductConsumers.i: example/ProductConsumers.cpp.i
+
+.PHONY : example/ProductConsumers.i
+
+# target to preprocess a source file
+example/ProductConsumers.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ProductConsumers.cpp.i
+.PHONY : example/ProductConsumers.cpp.i
+
+example/ProductConsumers.s: example/ProductConsumers.cpp.s
+
+.PHONY : example/ProductConsumers.s
+
+# target to generate assembly for a file
+example/ProductConsumers.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ProductConsumers.cpp.s
+.PHONY : example/ProductConsumers.cpp.s
+
+example/ShareStack.o: example/ShareStack.cpp.o
+
+.PHONY : example/ShareStack.o
+
+# target to build an object file
+example/ShareStack.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ShareStack.cpp.o
+.PHONY : example/ShareStack.cpp.o
+
+example/ShareStack.i: example/ShareStack.cpp.i
+
+.PHONY : example/ShareStack.i
+
+# target to preprocess a source file
+example/ShareStack.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ShareStack.cpp.i
+.PHONY : example/ShareStack.cpp.i
+
+example/ShareStack.s: example/ShareStack.cpp.s
+
+.PHONY : example/ShareStack.s
+
+# target to generate assembly for a file
+example/ShareStack.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ShareStack.cpp.s
+.PHONY : example/ShareStack.cpp.s
+
 hook.o: hook.cpp.o
 
 .PHONY : hook.o
@@ -240,33 +294,6 @@ hook.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/hook.cpp.s
 .PHONY : hook.cpp.s
 
-main.o: main.cpp.o
-
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/main.cpp.s
-.PHONY : main.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -286,12 +313,15 @@ help:
 	@echo "... coswap.o"
 	@echo "... coswap.i"
 	@echo "... coswap.s"
+	@echo "... example/ProductConsumers.o"
+	@echo "... example/ProductConsumers.i"
+	@echo "... example/ProductConsumers.s"
+	@echo "... example/ShareStack.o"
+	@echo "... example/ShareStack.i"
+	@echo "... example/ShareStack.s"
 	@echo "... hook.o"
 	@echo "... hook.i"
 	@echo "... hook.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
 .PHONY : help
 
 

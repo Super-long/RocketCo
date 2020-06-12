@@ -126,10 +126,13 @@
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coswap.h">
 			<Option target="RocketCo"/>
 		</Unit>
-		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.cpp">
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/ProductConsumers.cpp">
 			<Option target="RocketCo"/>
 		</Unit>
-		<Unit filename="/home/lizhaolong/suanfa/RocketCo/main.cpp">
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/ShareStack.cpp">
+			<Option target="RocketCo"/>
+		</Unit>
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.cpp">
 			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/CMakeLists.txt">

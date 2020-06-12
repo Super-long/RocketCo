@@ -39,13 +39,27 @@ namespace RocketCo {
 
     // -------------------
 
-    // 多栈可以使得我们在进程切换的时候减少拷贝次数
-    struct Co_ShareStack{
-        unsigned int alloc_idx;		    // stack_array中我们在下一次调用中应该使用的那个共享栈的index
-        int stack_size;				    // 共享栈的大小，这里的大小指的是一个stStackMem_t*的大小
-        int count;					    // 共享栈的个数，共享栈可以为多个，所以以下为共享栈的数组
-        Co_Stack_Member** stack_array;	// 栈的内容，这里是个数组，元素是stStackMem_t*
-    };
+    Co_ShareStack::Co_ShareStack(int Count, int Stack_size)
+    : count(Count), stack_size(Stack_size), alloc_idx(0){
+        stack_array = (Co_Stack_Member**)calloc(count, sizeof(Co_Stack_Member*));
+        for (int i = 0; i < count; ++i) {
+            Co_Stack_Member* Temp = new Co_Stack_Member();
+            Temp->current_co = nullptr;
+            Temp->stack_size = this->stack_size;
+            Temp->stack_buffer = new char[this->stack_size];
+            // Temp->stack_buffer实际上是堆,地址从小到大,而程序运行过程中ebp指针由大向小移动
+            Temp->stack_bp = Temp->stack_buffer + Temp->stack_size;
+            stack_array[i] = Temp;
+        }
+    }
+
+    Co_ShareStack::~Co_ShareStack(){
+        for (int i = 0; i < count; ++i) {
+            delete [] stack_array[i]->stack_buffer;
+            delete stack_array[i];
+        }
+        free(stack_array);
+    }
 
     struct CoEventItem{         // 用于在epoll中存储事件
         CoEventItem* Prev;      // 前一个元素
@@ -59,7 +73,8 @@ namespace RocketCo {
         //https://en.cppreference.com/w/cpp/chrono/time_point
         std::uint64_t ExpireTime;   // 记录超时时间 eventloop中使用
 
-        Co_Entity* ItemCo;   // 当前项所属的协程
+        // TODO 很重要的一点,
+        void* ItemCo;   // 当前项所属的协程
         bool IsTimeout; // 标记这个事件是否已经超时
     };
 
@@ -163,6 +178,7 @@ namespace RocketCo {
         }
         TNode *lp = apOther->head;
         while( lp ){
+            //std::cout << "这里应该触发 " << static_cast<Co_Entity*>(lp->ItemCo)->flag << std::endl;
             lp->Link = apLink;
             lp = lp->Next;
         }
@@ -188,7 +204,7 @@ namespace RocketCo {
         TNode *lp = apLink->head;
         if( apLink->head == apLink->tail ){
             apLink->head = apLink->tail = NULL;
-        } else {
+        } else {//CoEventItem, CoEventItemIink
             apLink->head = apLink->head->Next;
         }
 
@@ -272,7 +288,7 @@ namespace RocketCo {
                 std::cerr << "ERROR : TimeWheel.TakeOutTimeout Take out time is greater than timeout.\n";
                 return;
             }
-            // 现在Start到Now中间的区间中如果存在数据就是超时的
+            // 现在Start到Now中间的区间中如果存在数据, 就可以看做超时的
             for (int i = 0; i < interval; ++i) {
                 int index = (Index + i) % Wheel.size();
                 Join<CoEventItem, CoEventItemIink>(TimeOut, Wheel[index]);
@@ -316,17 +332,13 @@ namespace RocketCo {
         Co_Entity* prev_Co;     // 调用栈中的上一个协程
     };
 
-    struct Co_Attribute{
-        static constexpr const int Default_StackSize = 128 * 1024;      // 128KB
-        static constexpr const int Maximum_StackSize = 8 * 1024 * 1024; // 8MB
-        int stack_size = Default_StackSize;              // 规定栈的大小
-        Co_ShareStack* shareStack = nullptr;    // 默认为不共享
-    };
-
     // 给协程实体分配内存并初始化
     // 线程局部的属性;协程属性;协程执行函数;函数参数;
     // 可能会抛出错误 std:bad_alloc
     Co_Entity* CreatAndAlloction(Co_Rountinue_Env* env ,Co_Attribute* attr, Co_RealFun fun, void* arg){
+
+        static int flags = 10;
+
         Co_Attribute Temp_attr; // 默认栈大小为128KB,且不支持共享栈
         if(attr){
             memcpy(&Temp_attr, attr, sizeof(Co_Attribute));
@@ -346,7 +358,6 @@ namespace RocketCo {
 
         Co_Entity* Co = new Co_Entity();
         bzero(Co, sizeof(Co_Entity));
-        //std::cout << "123\n";
         Co->env = env;
         Co->fun = fun;
         Co->arg = arg;
@@ -394,7 +405,6 @@ namespace RocketCo {
             }
 
             Co_Entity* Temp = CreatAndAlloction(get_thisThread_Env(), attr, fun, arg);
-            //std::cout << "end\n";
             *Co = Temp;
         }catch (const std::bad_alloc& e){ // 可能分配内存失败
             std::cerr << "Error : Co_Create(). " << e.what() << std::endl;
@@ -413,9 +423,7 @@ namespace RocketCo {
 
         Temp->Co_ESP = 0;   // "调用栈"顶指针
 
-        //std::cout << "开始为协程分配资源\n";
         Co_Entity* Main = CreatAndAlloction(Temp, nullptr, nullptr, nullptr);
-        //std::cout << "CreatAndAlloction\n";
         Main->IsMain = true;// 调用init_thisThread_Env的协程一定是主协程
 
         Temp->prev_Co = nullptr;
@@ -423,9 +431,7 @@ namespace RocketCo {
 
 
         co_swap_init(&Main->cst);   // 初始化此协程实体上下文
-        //std::cout << "up\n";
         Temp->Co_CallBack[Temp->Co_ESP++] = Main;   // 放入线程独有环境中
-        //std::cout << "dwon\n";
         // TODO 初始化环境变量中的Epoll,及其中的数据.空间销毁是个问题,
         // 后期如果手动销毁太麻烦的话替换为智能指针,就是损失性能
         Temp->Epoll_ = new Co_Epoll();
@@ -437,7 +443,8 @@ namespace RocketCo {
     // 保存这个协程实体的栈空间
     void Copy_stackMember(Co_Entity* occupy){
         Co_Stack_Member* stackMember = occupy->Csm; // 获取当前协程的栈
-        int UsedLength = std::distance(occupy->ESP, stackMember->stack_bp); // 求出当前栈上的有效栈空间
+        //int UsedLength = std::distance(occupy->ESP, stackMember->stack_bp); // 求出当前栈上的有效栈空间
+        int UsedLength = stackMember->stack_bp - occupy->ESP;
         if(occupy->Used_Stack){
             delete [] occupy->Used_Stack;
             occupy->Used_Stack = nullptr;
@@ -463,7 +470,6 @@ namespace RocketCo {
         current->ESP = &c;
 
         if(!pending->IsShareStack){ // 非共享栈, 不需要更新
-            //std::cout << "开始为非共享栈,应该显示\n";
             env->using_Co = nullptr;
             env->prev_Co  = nullptr;
         } else {
@@ -472,6 +478,7 @@ namespace RocketCo {
 
             // 与pending使用相同栈的上一个协程
             Co_Entity* occupy_Co = pending->Csm->current_co;
+            pending->Csm->current_co = pending;
             env->prev_Co = occupy_Co;
             // 当此栈的上一个执行者
             if(occupy_Co && occupy_Co != pending){
@@ -479,28 +486,34 @@ namespace RocketCo {
             }
         }
         // coctx_swap函数一执行完就切换到另一个协程了
-        //std::cout << "up\n";
         // ------------
- /*       co_swap_t p1 = current->cst;
-        {
-            printf("%d %p\n",p1.ss_size, p1.ss_sp);
-            for (int i = 0; i < 14; ++i) {
-                std::cout << p1.regs[i] << " ";;
-            }
-            putchar('\n');
-        }
-        co_swap_t p2 = pending->cst;
-        {
-            printf("%d %p\n",p2.ss_size, p2.ss_sp);
-            for (int i = 0; i < 14; ++i) {
-                std::cout << p2.regs[i] << " ";;
-            }
-            putchar('\n');
-        }*/
+        //std::cout << "---------------------------------------\n";
+//        std::cout << "current :: " << current->flag<< std::endl;
+//        co_swap_t p1 = current->cst;
+//        {
+//            printf("%d %p\n",p1.ss_size, p1.ss_sp);
+//            for (int i = 0; i < 14; ++i) {
+//                std::cout << p1.regs[i] << " ";;
+//            }
+//            putchar('\n');
+//        }
+//        ttid = (int*)pending->arg;
+//        if(pending->arg){
+//            std::cout << *ttid << std::endl;
+//        }
+//        std::cout << "pending :: " << pending->flag  << std::endl;
+//        co_swap_t p2 = pending->cst;
+//        {
+//            printf("%d %p\n",p2.ss_size, p2.ss_sp);
+//            for (int i = 0; i < 14; ++i) {
+//                std::cout << p2.regs[i] << " ";;
+//            }
+//            putchar('\n');
+//        }
+//        std::cout << "---------------------------------------\n";
         // ------------
         coctx_swap(&(current->cst), &(pending->cst));
         // 到了pending协程了,pending协程执行完才会回到这里
-        //std::cout << "down\n";
 
         // 上面函数执行完到这里可能buffer已经经过了许多改变,可能env中的前后顺序也变了,所以需要重新获取
         Co_Rountinue_Env* cur_env = get_thisThread_Env();
@@ -549,14 +562,11 @@ namespace RocketCo {
         // 获取当前正在进行的协程主体,方便进行转换.ESP指向了当前的“调用栈”顶
         Co_Entity *current = env->Co_CallBack[env->Co_ESP - 1];
         if (!Co->ISstart) { // 还未执行过,我们需要获取寄存器的值.
-            //std::cout << "初始化上下文\n";
             co_swap_make(&Co->cst,(co_runningFunction)Co_realRunningFun ,Co, 0);
             Co->ISstart = true;
         }
         env->Co_CallBack[env->Co_ESP++] = Co;
-        //std::cout << "up\n";
         co_swap_Co(Co, current);
-        //std::cout << "down\n";
     }
 
     Co_Epoll* GetCurrentCoEpoll(){
@@ -644,9 +654,8 @@ namespace RocketCo {
         bzero(poll_->WillJoinEpoll, sizeof(StPollItem) * nfds);
         poll_->ItemCo = GetCurrCo(get_thisThread_Env()); // 把此项所属的协程存起来,方便在事件完成的时候进行唤醒
         // 当事件就绪或超时时设置的回调,用于唤醒这个协程继续处理
-        poll_->CoPrecoss = [](CoEventItem* para){Co_resume(para->ItemCo);};
+        poll_->CoPrecoss = [](CoEventItem* para){Co_resume(static_cast<Co_Entity*>(para->ItemCo));};
 
-        //std::cout << "把poll事件添加到epoll中\n";
         // 把poll事件添加到epoll中
         for(int i = 0; i < nfds; ++i){
             poll_->WillJoinEpoll[i].pSelf     = poll_->fds + i;
@@ -654,7 +663,6 @@ namespace RocketCo {
             poll_->WillJoinEpoll[i].CoPrepare = CoPrepare_;
 
             struct ::epoll_event& ev = poll_->WillJoinEpoll[i].Event;
-            //std::cout << "初始化 epoll_event.\n";
             if(fds[i].fd > -1){ // 如果套接字有效的话
                 ev.data.ptr = poll_->WillJoinEpoll + i; // 在事件发生的时候使用
                 ev.events   = EventPoll2Epoll(fds[i].events);
@@ -751,12 +759,15 @@ namespace RocketCo {
             // 把时间轮中的超时事件插入到timeout链表中
             Epoll_->TW.TakeOutTimeout(Now, timeout);
             SetUpTimepoutLable(timeout);
+
             Join<CoEventItem, CoEventItemIink>(active, timeout);
 
             CoEventItem* item = active->head;
             // 对active链表中的数据做处理,可能为超时事件或者就绪事件,
             while(item){
                 PopHead<CoEventItem, CoEventItemIink>(active);
+                //printf("%p %p %d\n", item->ItemCo,item->Next, static_cast<Co_Entity*>(item->ItemCo)->flag);
+
                 // 两个条件不可能同时满足
                 if(item->IsTimeout && Now < item->ExpireTime){
                     std::cerr << "ERROR : EventLoop Unexpected error.\n";
@@ -813,7 +824,7 @@ namespace RocketCo {
         ConditionVariableItem* Item = new ConditionVariableItem();
         Item->Item.ItemCo = GetCurrentCoEntity();
         // 设置epoll中的回调,其实就是切换协程的执行权
-        Item->Item.CoPrecoss = [](CoEventItem* Co){Co_resume(Co->ItemCo);};
+        Item->Item.CoPrecoss = [](CoEventItem* Co){Co_resume(static_cast<Co_Entity*>(Co->ItemCo));};
 
         if(TimeOut > 0){
             std::uint64_t Now = get_mill_time_stamp();

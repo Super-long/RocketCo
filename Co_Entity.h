@@ -34,7 +34,6 @@ namespace RocketCo {
         bool IsHook;            // 此协程的函数是否被hook,这牵扯到执行hook后的函数还是之前的函数
         char filling[3];        // 字节对齐,还需要加什么状态位把这个删了就可以了
 
-
         Co_Stack_Member* Csm;   // 协程的栈空间
 
         /* 当我们标记协程为共享栈的时候需要用到的数据结构,此时仅凭借Co_Stack_Member描述不了 */
