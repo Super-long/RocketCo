@@ -13,4 +13,4 @@ add_executable(RocketCo example/ShareStack.cpp
         Co_Entity.h Co_Routine.h Co_Routine.cpp
         Base/havefd.h Base/copyable.h Base/nocopyable.h
         EpollWrapper/address.h EpollWrapper/address.cpp
-        EpollWrapper/epoll_event.h EpollWrapper/epoll_event_result.h EpollWrapper/epoll.h hook.cpp)
+        EpollWrapper/epoll_event.h EpollWrapper/epoll_event_result.h EpollWrapper/epoll.h hook.cpp example/echoServer.cpp)

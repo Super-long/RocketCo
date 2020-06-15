@@ -129,6 +129,9 @@
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/ShareStack.cpp">
 			<Option target="RocketCo"/>
 		</Unit>
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/echoServer.cpp">
+			<Option target="RocketCo"/>
+		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.cpp">
 			<Option target="RocketCo"/>
 		</Unit>

@@ -282,6 +282,16 @@
         return ret;
     }
 
+    int AcceptFd2Attributes( int fd, struct sockaddr *addr, socklen_t *len ){
+        int cli = accept( fd,addr,len );
+        if( cli < 0 )
+        {
+            return cli;
+        }
+        CreateAFdAttributes(cli);
+        return cli;
+    }
+
     // 返回值大于零时为已写入字节数
     // 小于等于零时为出现错误
     int write(int fd, const void *buf, size_t nbyte){

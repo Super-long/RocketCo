@@ -50,6 +50,7 @@ namespace RocketCo{
     void Co_Create(Co_Entity** Co, Co_Attribute* attr, Co_RealFun fun, void* arg);
     void Co_resume(Co_Entity* Co);
     void Co_yeild(Co_Rountinue_Env* env);
+    void Co_yeild();
 
     Co_Entity* GetCurrentCoEntity();
     Co_Epoll* GetCurrentCoEpoll();

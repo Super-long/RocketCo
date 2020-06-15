@@ -240,6 +240,33 @@ example/ShareStack.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ShareStack.cpp.s
 .PHONY : example/ShareStack.cpp.s
 
+example/echoServer.o: example/echoServer.cpp.o
+
+.PHONY : example/echoServer.o
+
+# target to build an object file
+example/echoServer.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/echoServer.cpp.o
+.PHONY : example/echoServer.cpp.o
+
+example/echoServer.i: example/echoServer.cpp.i
+
+.PHONY : example/echoServer.i
+
+# target to preprocess a source file
+example/echoServer.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/echoServer.cpp.i
+.PHONY : example/echoServer.cpp.i
+
+example/echoServer.s: example/echoServer.cpp.s
+
+.PHONY : example/echoServer.s
+
+# target to generate assembly for a file
+example/echoServer.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/echoServer.cpp.s
+.PHONY : example/echoServer.cpp.s
+
 hook.o: hook.cpp.o
 
 .PHONY : hook.o
@@ -289,6 +316,9 @@ help:
 	@echo "... example/ShareStack.o"
 	@echo "... example/ShareStack.i"
 	@echo "... example/ShareStack.s"
+	@echo "... example/echoServer.o"
+	@echo "... example/echoServer.i"
+	@echo "... example/echoServer.s"
 	@echo "... hook.o"
 	@echo "... hook.i"
 	@echo "... hook.s"
