@@ -765,13 +765,14 @@ namespace RocketCo {
             CoEventItem* item = active->head;
             // 对active链表中的数据做处理,可能为超时事件或者就绪事件,
             while(item){
-                PopHead<CoEventItem, CoEventItemIink>(active);
                 //printf("%p %p %d\n", item->ItemCo,item->Next, static_cast<Co_Entity*>(item->ItemCo)->flag);
 
                 // 两个条件不可能同时满足
                 if(item->IsTimeout && Now < item->ExpireTime){
                     std::cerr << "ERROR : EventLoop Unexpected error.\n";
                 }
+                PopHead<CoEventItem, CoEventItemIink>(active);
+                
                 if(item->CoPrecoss){
                     // 回调执行Co_resume
                     item->CoPrecoss(item);

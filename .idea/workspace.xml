@@ -62,7 +62,9 @@
       <workItem from="1591664843345" duration="28594000" />
       <workItem from="1591759171027" duration="12303000" />
       <workItem from="1591837678162" duration="26908000" />
-      <workItem from="1591923175565" duration="21254000" />
+      <workItem from="1591923175565" duration="24553000" />
+      <workItem from="1592108187183" duration="599000" />
+      <workItem from="1592182707815" duration="14427000" />
     </task>
     <servers />
   </component>
@@ -94,13 +96,14 @@
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
     <state width="498" height="447" key="SwitcherDM/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591838291689" />
-    <state x="618" y="367" key="com.intellij.ide.util.TipDialog" timestamp="1591923176458">
+    <state x="618" y="367" key="com.intellij.ide.util.TipDialog" timestamp="1592182881432">
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
+    <state x="618" y="367" key="com.intellij.ide.util.TipDialog/0.0.1920.1030@0.0.1920.1030" timestamp="1592182881432" />
     <state x="618" y="367" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591923176458" />
-    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup" timestamp="1591955679763">
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup" timestamp="1591960682114">
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
-    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591955679763" />
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591960682114" />
   </component>
 </project>

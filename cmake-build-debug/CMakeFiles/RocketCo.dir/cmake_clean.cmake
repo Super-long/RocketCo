@@ -3,7 +3,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o"
   "CMakeFiles/RocketCo.dir/coctx_swap.S.o"
   "CMakeFiles/RocketCo.dir/coswap.cpp.o"
-  "CMakeFiles/RocketCo.dir/example/ProductConsumers.cpp.o"
   "CMakeFiles/RocketCo.dir/example/ShareStack.cpp.o"
   "CMakeFiles/RocketCo.dir/hook.cpp.o"
   "RocketCo"

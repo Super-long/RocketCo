@@ -213,33 +213,6 @@ coswap.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.s
 .PHONY : coswap.cpp.s
 
-example/ProductConsumers.o: example/ProductConsumers.cpp.o
-
-.PHONY : example/ProductConsumers.o
-
-# target to build an object file
-example/ProductConsumers.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ProductConsumers.cpp.o
-.PHONY : example/ProductConsumers.cpp.o
-
-example/ProductConsumers.i: example/ProductConsumers.cpp.i
-
-.PHONY : example/ProductConsumers.i
-
-# target to preprocess a source file
-example/ProductConsumers.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ProductConsumers.cpp.i
-.PHONY : example/ProductConsumers.cpp.i
-
-example/ProductConsumers.s: example/ProductConsumers.cpp.s
-
-.PHONY : example/ProductConsumers.s
-
-# target to generate assembly for a file
-example/ProductConsumers.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ProductConsumers.cpp.s
-.PHONY : example/ProductConsumers.cpp.s
-
 example/ShareStack.o: example/ShareStack.cpp.o
 
 .PHONY : example/ShareStack.o
@@ -313,9 +286,6 @@ help:
 	@echo "... coswap.o"
 	@echo "... coswap.i"
 	@echo "... coswap.s"
-	@echo "... example/ProductConsumers.o"
-	@echo "... example/ProductConsumers.i"
-	@echo "... example/ProductConsumers.s"
 	@echo "... example/ShareStack.o"
 	@echo "... example/ShareStack.i"
 	@echo "... example/ShareStack.s"
