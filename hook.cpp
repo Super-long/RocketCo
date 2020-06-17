@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <cstdarg>  // 可变函数参数相关
+#include <errno.h>
 
 #include <map>
 #include <iostream>
@@ -22,8 +23,6 @@
 #include <unordered_map>
 
 #include <iostream>
-
-    // TODO 今天下午的任务 read write connect accept
 
     // ------------------------------------
     // hook前的函数声明
@@ -44,10 +43,10 @@
     // 对函数进行hook,并存储hook前的函数,因为在封装以后还是要调用
     // 函数dlsym的参数RTLD_NEXT可以在对函数实现所在动态库名称未知的情况下完成对库函数的替代
     // 格式为{Hook_##name##_t}
-    static poll_t Hook_poll_t = (poll_t)dlsym(RTLD_NEXT, "poll");
 
     static read_t Hook_read_t = (read_t)dlsym(RTLD_NEXT, "read");
     static write_t Hook_write_t = (write_t)dlsym(RTLD_NEXT, "write");
+    static poll_t Hook_poll_t = (poll_t)dlsym(RTLD_NEXT, "poll");
 
     static socket_t Hook_socket_t = (socket_t)dlsym(RTLD_NEXT, "socket");
     static connect_t Hook_connect_t = (connect_t)dlsym(RTLD_NEXT, "connect");
@@ -56,7 +55,7 @@
     static fcntl_t Hook_fcntl_t = (fcntl_t)dlsym(RTLD_NEXT, "fcntl");
 
     // ------------------------------------
-    // 必要的结构体,为了少一次系统调用
+    // 必要的结构体,为了少一次系统调用,且记录用户原本注册的事件
 
     struct FdAttributes{
         struct sockaddr_in addr;    // 套接字目标地址
@@ -76,7 +75,7 @@
 
     #define HOOK_SYS_FUNC(name) if( !Hook_##name##_t ) { Hook_##name##_t = (name##_t)dlsym(RTLD_NEXT,#name); }
 
-    int poll(struct pollfd fds[], nfds_t nfds, int timeout){
+int poll(struct pollfd fds[], nfds_t nfds, int timeout){
         // 只定义了一些函数,如果没hook的话,这里hook一下,使用的方法和一般的一样.宏会被展开
         // 文件头定义一些常用的,减少开销,不想麻烦的话文件前面都可以不用写.
         HOOK_SYS_FUNC(poll);
@@ -147,7 +146,7 @@
     }
 
     static inline FdAttributes* CreateAFdAttributes(int fd){
-        if(fd > 0 && fd < AttributesLength) return nullptr;
+        if(fd < 0 && fd >= AttributesLength) return nullptr;
 
         FdAttributes* Temp = new FdAttributes();
         memset(Temp, 0, sizeof(FdAttributes));
@@ -158,39 +157,11 @@
         return Temp;
     }
 
-    ssize_t read(int fd, void *buf, size_t nbyte){
-        HOOK_SYS_FUNC(read);
-        if(!RocketCo::GetCurrentCoIsHook()){
-            return Hook_read_t(fd, buf, nbyte);
-        }
-        FdAttributes* Attributes = GetFdAttributesByFd(fd);
-        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
-            return Hook_read_t(fd, buf, nbyte);
-        }
-
-        std::int64_t timeout = Attributes->read_timeout;
-        struct pollfd pollEvent;
-        bzero(&pollEvent, sizeof(pollfd));
-        pollEvent.fd = fd;
-        pollEvent.events = Attributes->fdFlag;
-
-        // hook后的pool CPU在这里切换使用权
-        poll(&pollEvent, 1, timeout); // 返回值不重要,肯定是1
-
-        ssize_t res = Hook_read_t(fd, buf, nbyte);
-
-        if(res < 0){ // 超时
-            std::cerr << "ERROR: Hooked Read timeout!\n";
-        }
-        return res; // 返回实际读取的字节数
-    }
-
-    int socket(int domain, int type, int protocol){
+   int socket(int domain, int type, int protocol){
         HOOK_SYS_FUNC(socket);
         if(!RocketCo::GetCurrentCoIsHook()){
             return Hook_socket_t(domain, type, protocol);
         }
-
         int fd = Hook_socket_t(domain, type, protocol);
         if(fd < 0){
             std::cerr << "ERROR: error in create a socket in socket().\n";
@@ -204,7 +175,38 @@
         fcntl( fd, F_SETFL, Hook_fcntl_t(fd, F_GETFL,0 ));
 
         return fd;
-    }
+   }
+
+   ssize_t read(int fd, void *buf, size_t nbyte){
+        //std::cout << "进入函数\n";
+        HOOK_SYS_FUNC(read);
+        if(!RocketCo::GetCurrentCoIsHook()){
+            std::cout << "hello\n";
+            return Hook_read_t(fd, buf, nbyte);
+        }
+        FdAttributes* Attributes = GetFdAttributesByFd(fd);
+        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
+            std::cout << "world\n";
+            return Hook_read_t(fd, buf, nbyte);
+        }
+
+        std::cout << "hello world\n";
+        std::int64_t timeout = Attributes->read_timeout;
+        struct pollfd pollEvent;
+        bzero(&pollEvent, sizeof(pollfd));
+        pollEvent.fd = fd;
+        pollEvent.events = ( POLLIN | POLLERR | POLLHUP );
+
+        // hook后的pool CPU在这里切换使用权
+        poll(&pollEvent, 1, timeout); // 返回值不重要,肯定是1
+        std::cout <<"----------------------" << errno << std::endl;
+        ssize_t res = Hook_read_t(fd, buf, nbyte);
+
+        if(res < 0){ // 超时
+            std::cerr << "ERROR: Hooked Read timeout!\n";
+        }
+        return res; // 返回实际读取的字节数
+   }
 
     int fcntl(int fd, int cmd, ...){
         HOOK_SYS_FUNC(fcntl);
@@ -224,8 +226,9 @@
             case F_GETFD:   // 忽略第三个参数
             {
                 ret = Hook_fcntl_t(fd, cmd);
-                if(!Attributes || !(Attributes->fdFlag & O_NONBLOCK)){
-                    Attributes->fdFlag &= O_NONBLOCK;
+                // 用户创建的套接字如果不包含O_NONBLOCK的话,返回值也不包含
+                if(Attributes && !(Attributes->fdFlag & O_NONBLOCK)){
+                    ret = ret & (~O_NONBLOCK);
                 }
                 break;
             }
@@ -294,7 +297,9 @@
 
     // 返回值大于零时为已写入字节数
     // 小于等于零时为出现错误
-    int write(int fd, const void *buf, size_t nbyte){
+
+    ssize_t write(int fd, const void *buf, size_t nbyte){
+        std::cout << "进入write\n";
         HOOK_SYS_FUNC(write);
         if(!RocketCo::GetCurrentCoIsHook()) {
             return Hook_write_t(fd, buf, nbyte);
@@ -344,7 +349,7 @@
 
         FdAttributes* Attributes = CreateAFdAttributes(fd);
         if(!Attributes || Attributes->fdFlag & O_NONBLOCK)
-            return ret; // 不是由hook的socket创建的
+            return ret; // 不是由hook的socket创建的,或者本来就是非阻塞
         if(!(ret < 0 && errno == EINPROGRESS))
             return ret;
 
@@ -353,7 +358,7 @@
         }
 
         int res = 0;
-        struct pollfd pollEvent;
+        struct pollfd pollEvent = {0};
         int RetransmissionInterval = 2000; // ms
         for (int i = 0; i < 5; ++i) {
             bzero(&pollEvent, sizeof(struct pollfd));
@@ -362,7 +367,7 @@
 
             res = poll(&pollEvent, 1, RetransmissionInterval);  // 切换CPU执行权
 
-            if(1 == res && pollEvent.revents & POLLOUT){ // 此返回事件不是不是超时事件
+            if(1 == res && pollEvent.revents & POLLOUT){ // 此返回事件不是超时事件
                 break;
             }
             RetransmissionInterval *= 2; // 超时时间二进制倍增
@@ -388,6 +393,7 @@
     }
 
     int close(int fd){
+        std::cout << "进入close\n";
         HOOK_SYS_FUNC(close);
         if(!RocketCo::GetCurrentCoIsHook()) {
             return Hook_close_t(fd);

@@ -44,7 +44,7 @@ void *readwrite_routine( void *arg ){
             struct pollfd pf = { 0 };
             pf.fd = fd;
             pf.events = (POLLIN|POLLERR|POLLHUP);
-            RocketCo::Co_poll_inner( RocketCo::GetCurrentCoEpoll(),&pf,1,1000);
+            RocketCo::Co_poll_inner( RocketCo::GetCurrentCoEpoll(),&pf,1,1000, nullptr);
 
             int ret = read( fd,buf,sizeof(buf) );
             if( ret > 0 ) // 一个回显的过程,把接收到的东西再写回去,当然零拷贝是一个更优的选择
@@ -93,7 +93,7 @@ void *accept_routine( void * )
             struct pollfd pf = { 0 };
             pf.fd = ServerFd;
             pf.events = (POLLIN|POLLERR|POLLHUP);
-            RocketCo::Co_poll_inner( RocketCo::GetCurrentCoEpoll(),&pf,1,1000 );
+            RocketCo::Co_poll_inner( RocketCo::GetCurrentCoEpoll(),&pf,1,1000, nullptr);
             continue;
         }
         if( g_readwrite.empty() )
@@ -181,13 +181,13 @@ int main(int argc, char* argv[]){
     printf("listen %d %s:%d\n",ServerFd,ip,port);
     SetNonBlock(ServerFd);
 
-    for(int i = 0; i < proccnt; ++i) {
+/*    for(int i = 0; i < proccnt; ++i) {
         pid_t pid = fork();
         if(pid > 0){ // 父进程
             continue;
         }else if (pid < 0){ // 出现错误
             break;
-        }else { //等于0,子进程
+        }else { //等于0,子进程*/
             for(int j = 0; j < cnt; j++){
                 task_t * task = (task_t*)calloc( 1,sizeof(task_t) );
                 task->fd = -1;
@@ -202,6 +202,6 @@ int main(int argc, char* argv[]){
             RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(),0,0 );
 
             printf("end\n"); // 永远无法执行到这里
-        }
-    }
+        //}
+    //}
 }

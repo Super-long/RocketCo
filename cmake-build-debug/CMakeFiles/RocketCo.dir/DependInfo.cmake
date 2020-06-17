@@ -17,6 +17,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/coswap.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/coswap.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/example/ShareStack.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/example/ShareStack.cpp.o"
+  "/home/lizhaolong/suanfa/RocketCo/example/echoClient.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/example/echoClient.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/example/echoServer.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/example/echoServer.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/hook.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/hook.cpp.o"
   )

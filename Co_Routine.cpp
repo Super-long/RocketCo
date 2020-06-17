@@ -171,14 +171,13 @@ namespace RocketCo {
 
     // 合并链表 把apOther插入apLink
     template <class TNode,class TLink>
-    void inline Join( TLink*apLink,TLink *apOther )
+    void inline Join( TLink*apLink,TLink *apOther,int index )
     {
         if( !apOther->head ){
             return ;
         }
         TNode *lp = apOther->head;
         while( lp ){
-            //std::cout << "这里应该触发 " << static_cast<Co_Entity*>(lp->ItemCo)->flag << std::endl;
             lp->Link = apLink;
             lp = lp->Next;
         }
@@ -264,7 +263,6 @@ namespace RocketCo {
                 std::cerr << "ERROR : TimeWheel.AddTimeOut Timeout is greater than Timewheel default size.\n";
                 return __LINE__;
             }
-
             AddTail(Wheel[(Index + interval)%Wheel.size()], ItemList);
             return 0;
         }
@@ -291,7 +289,7 @@ namespace RocketCo {
             // 现在Start到Now中间的区间中如果存在数据, 就可以看做超时的
             for (int i = 0; i < interval; ++i) {
                 int index = (Index + i) % Wheel.size();
-                Join<CoEventItem, CoEventItemIink>(TimeOut, Wheel[index]);
+                Join<CoEventItem, CoEventItemIink>(TimeOut, Wheel[index], index);
             }
             // 更新必要的数据
             Start = Now;
@@ -644,7 +642,6 @@ namespace RocketCo {
 
         // 数据量小的时候的一个优化,模仿std::string
         StPollItem array[ShortItemOptimization];
-        bzero(array, sizeof(StPollItem) * ShortItemOptimization);
         // TODO 是否需要判断目前是否为共享栈模型
         if(nfds < ShortItemOptimization) {
             poll_->WillJoinEpoll = array;
@@ -661,6 +658,9 @@ namespace RocketCo {
             poll_->WillJoinEpoll[i].pSelf     = poll_->fds + i;
             poll_->WillJoinEpoll[i].Stpoll    = poll_;
             poll_->WillJoinEpoll[i].CoPrepare = CoPrepare_;
+            // TODO 第一次忘记的地方 用于事件触发时的回调
+            poll_->WillJoinEpoll[i].ItemCo = static_cast<void*>(GetCurrentCoEntity());
+            poll_->WillJoinEpoll[i].CoPrecoss = [](CoEventItem* para){Co_resume(static_cast<Co_Entity*>(para->ItemCo));};
 
             struct ::epoll_event& ev = poll_->WillJoinEpoll[i].Event;
             if(fds[i].fd > -1){ // 如果套接字有效的话
@@ -760,7 +760,7 @@ namespace RocketCo {
             Epoll_->TW.TakeOutTimeout(Now, timeout);
             SetUpTimepoutLable(timeout);
 
-            Join<CoEventItem, CoEventItemIink>(active, timeout);
+            Join<CoEventItem, CoEventItemIink>(active, timeout,0);
 
             CoEventItem* item = active->head;
             // 对active链表中的数据做处理,可能为超时事件或者就绪事件,
@@ -772,8 +772,10 @@ namespace RocketCo {
                     std::cerr << "ERROR : EventLoop Unexpected error.\n";
                 }
                 PopHead<CoEventItem, CoEventItemIink>(active);
-                
-                if(item->CoPrecoss){
+
+                //Co_resume(static_cast<Co_Entity*>(item->ItemCo));
+               if(item->CoPrecoss){
+                    //std::cout << "执行回调\n";
                     // 回调执行Co_resume
                     item->CoPrecoss(item);
                 }

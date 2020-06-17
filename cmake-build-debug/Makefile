@@ -111,17 +111,30 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named RocketCo
+# Target rules for targets named Server
 
 # Build rule for target.
-RocketCo: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 RocketCo
-.PHONY : RocketCo
+Server: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Server
+.PHONY : Server
 
 # fast build rule for target.
-RocketCo/fast:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/build
-.PHONY : RocketCo/fast
+Server/fast:
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/build
+.PHONY : Server/fast
+
+#=============================================================================
+# Target rules for targets named Client
+
+# Build rule for target.
+Client: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Client
+.PHONY : Client
+
+# fast build rule for target.
+Client/fast:
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/build
+.PHONY : Client/fast
 
 Co_Routine.o: Co_Routine.cpp.o
 
@@ -129,7 +142,8 @@ Co_Routine.o: Co_Routine.cpp.o
 
 # target to build an object file
 Co_Routine.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/Co_Routine.cpp.o
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/Co_Routine.cpp.o
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/Co_Routine.cpp.o
 .PHONY : Co_Routine.cpp.o
 
 Co_Routine.i: Co_Routine.cpp.i
@@ -138,7 +152,8 @@ Co_Routine.i: Co_Routine.cpp.i
 
 # target to preprocess a source file
 Co_Routine.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/Co_Routine.cpp.i
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/Co_Routine.cpp.i
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/Co_Routine.cpp.i
 .PHONY : Co_Routine.cpp.i
 
 Co_Routine.s: Co_Routine.cpp.s
@@ -147,7 +162,8 @@ Co_Routine.s: Co_Routine.cpp.s
 
 # target to generate assembly for a file
 Co_Routine.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/Co_Routine.cpp.s
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/Co_Routine.cpp.s
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/Co_Routine.cpp.s
 .PHONY : Co_Routine.cpp.s
 
 EpollWrapper/address.o: EpollWrapper/address.cpp.o
@@ -156,7 +172,8 @@ EpollWrapper/address.o: EpollWrapper/address.cpp.o
 
 # target to build an object file
 EpollWrapper/address.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/EpollWrapper/address.cpp.o
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/EpollWrapper/address.cpp.o
 .PHONY : EpollWrapper/address.cpp.o
 
 EpollWrapper/address.i: EpollWrapper/address.cpp.i
@@ -165,7 +182,8 @@ EpollWrapper/address.i: EpollWrapper/address.cpp.i
 
 # target to preprocess a source file
 EpollWrapper/address.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.i
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/EpollWrapper/address.cpp.i
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/EpollWrapper/address.cpp.i
 .PHONY : EpollWrapper/address.cpp.i
 
 EpollWrapper/address.s: EpollWrapper/address.cpp.s
@@ -174,7 +192,8 @@ EpollWrapper/address.s: EpollWrapper/address.cpp.s
 
 # target to generate assembly for a file
 EpollWrapper/address.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.s
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/EpollWrapper/address.cpp.s
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/EpollWrapper/address.cpp.s
 .PHONY : EpollWrapper/address.cpp.s
 
 coctx_swap.o: coctx_swap.S.o
@@ -183,7 +202,8 @@ coctx_swap.o: coctx_swap.S.o
 
 # target to build an object file
 coctx_swap.S.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coctx_swap.S.o
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/coctx_swap.S.o
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/coctx_swap.S.o
 .PHONY : coctx_swap.S.o
 
 coswap.o: coswap.cpp.o
@@ -192,7 +212,8 @@ coswap.o: coswap.cpp.o
 
 # target to build an object file
 coswap.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.o
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/coswap.cpp.o
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/coswap.cpp.o
 .PHONY : coswap.cpp.o
 
 coswap.i: coswap.cpp.i
@@ -201,7 +222,8 @@ coswap.i: coswap.cpp.i
 
 # target to preprocess a source file
 coswap.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.i
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/coswap.cpp.i
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/coswap.cpp.i
 .PHONY : coswap.cpp.i
 
 coswap.s: coswap.cpp.s
@@ -210,35 +232,36 @@ coswap.s: coswap.cpp.s
 
 # target to generate assembly for a file
 coswap.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.s
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/coswap.cpp.s
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/coswap.cpp.s
 .PHONY : coswap.cpp.s
 
-example/ShareStack.o: example/ShareStack.cpp.o
+example/echoClient.o: example/echoClient.cpp.o
 
-.PHONY : example/ShareStack.o
+.PHONY : example/echoClient.o
 
 # target to build an object file
-example/ShareStack.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ShareStack.cpp.o
-.PHONY : example/ShareStack.cpp.o
+example/echoClient.cpp.o:
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/example/echoClient.cpp.o
+.PHONY : example/echoClient.cpp.o
 
-example/ShareStack.i: example/ShareStack.cpp.i
+example/echoClient.i: example/echoClient.cpp.i
 
-.PHONY : example/ShareStack.i
+.PHONY : example/echoClient.i
 
 # target to preprocess a source file
-example/ShareStack.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ShareStack.cpp.i
-.PHONY : example/ShareStack.cpp.i
+example/echoClient.cpp.i:
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/example/echoClient.cpp.i
+.PHONY : example/echoClient.cpp.i
 
-example/ShareStack.s: example/ShareStack.cpp.s
+example/echoClient.s: example/echoClient.cpp.s
 
-.PHONY : example/ShareStack.s
+.PHONY : example/echoClient.s
 
 # target to generate assembly for a file
-example/ShareStack.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/ShareStack.cpp.s
-.PHONY : example/ShareStack.cpp.s
+example/echoClient.cpp.s:
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/example/echoClient.cpp.s
+.PHONY : example/echoClient.cpp.s
 
 example/echoServer.o: example/echoServer.cpp.o
 
@@ -246,7 +269,7 @@ example/echoServer.o: example/echoServer.cpp.o
 
 # target to build an object file
 example/echoServer.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/echoServer.cpp.o
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/example/echoServer.cpp.o
 .PHONY : example/echoServer.cpp.o
 
 example/echoServer.i: example/echoServer.cpp.i
@@ -255,7 +278,7 @@ example/echoServer.i: example/echoServer.cpp.i
 
 # target to preprocess a source file
 example/echoServer.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/echoServer.cpp.i
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/example/echoServer.cpp.i
 .PHONY : example/echoServer.cpp.i
 
 example/echoServer.s: example/echoServer.cpp.s
@@ -264,7 +287,7 @@ example/echoServer.s: example/echoServer.cpp.s
 
 # target to generate assembly for a file
 example/echoServer.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/echoServer.cpp.s
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/example/echoServer.cpp.s
 .PHONY : example/echoServer.cpp.s
 
 hook.o: hook.cpp.o
@@ -273,7 +296,8 @@ hook.o: hook.cpp.o
 
 # target to build an object file
 hook.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/hook.cpp.o
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/hook.cpp.o
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/hook.cpp.o
 .PHONY : hook.cpp.o
 
 hook.i: hook.cpp.i
@@ -282,7 +306,8 @@ hook.i: hook.cpp.i
 
 # target to preprocess a source file
 hook.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/hook.cpp.i
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/hook.cpp.i
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/hook.cpp.i
 .PHONY : hook.cpp.i
 
 hook.s: hook.cpp.s
@@ -291,7 +316,8 @@ hook.s: hook.cpp.s
 
 # target to generate assembly for a file
 hook.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/hook.cpp.s
+	$(MAKE) -f CMakeFiles/Server.dir/build.make CMakeFiles/Server.dir/hook.cpp.s
+	$(MAKE) -f CMakeFiles/Client.dir/build.make CMakeFiles/Client.dir/hook.cpp.s
 .PHONY : hook.cpp.s
 
 # Help Target
@@ -301,8 +327,9 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... RocketCo"
 	@echo "... edit_cache"
+	@echo "... Server"
+	@echo "... Client"
 	@echo "... Co_Routine.o"
 	@echo "... Co_Routine.i"
 	@echo "... Co_Routine.s"
@@ -313,9 +340,9 @@ help:
 	@echo "... coswap.o"
 	@echo "... coswap.i"
 	@echo "... coswap.s"
-	@echo "... example/ShareStack.o"
-	@echo "... example/ShareStack.i"
-	@echo "... example/ShareStack.s"
+	@echo "... example/echoClient.o"
+	@echo "... example/echoClient.i"
+	@echo "... example/echoClient.s"
 	@echo "... example/echoServer.o"
 	@echo "... example/echoServer.i"
 	@echo "... example/echoServer.s"
