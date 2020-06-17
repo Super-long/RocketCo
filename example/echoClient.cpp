@@ -175,12 +175,6 @@ void *readwrite_routine( void *arg )
 
 
 int main(int argc, char* argv[]){
-    co_enable_hook_sys();
-    char buffer[10000];
-    int fd = socket(PF_INET, SOCK_STREAM, 0);
-    read(5, buffer, 10000);
-
-    return 0;
 
     task_t addr;
     addr.ip = argv[1];			            // ip

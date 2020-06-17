@@ -27,6 +27,52 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="RocketCo">
+				<Option output="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/RocketCo" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 RocketCo"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="RocketCo/fast">
+				<Option output="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/RocketCo" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 RocketCo/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="edit_cache">
 				<Option working_dir="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug"/>
 				<Option type="4"/>
@@ -37,164 +83,54 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="Server">
-				<Option output="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Server" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 Server"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="Server/fast">
-				<Option output="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Server" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 Server/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="Client">
-				<Option output="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Client" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 Client"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="Client/fast">
-				<Option output="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Client" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/lizhaolong/suanfa/RocketCo/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 Client/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 		</Build>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Base/copyable.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Base/havefd.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Base/nocopyable.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Co_Entity.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Co_Routine.cpp">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/Co_Routine.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/EpollWrapper/epoll.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/EpollWrapper/epoll_event.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/EpollWrapper/epoll_event_result.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coctx_swap.S">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coswap.cpp">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coswap.h">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
-		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/echoClient.cpp">
-			<Option target="Client"/>
-		</Unit>
-		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/echoServer.cpp">
-			<Option target="Server"/>
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/usingPoll.cpp">
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.cpp">
-			<Option target="Server"/>
-			<Option target="Client"/>
+			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>

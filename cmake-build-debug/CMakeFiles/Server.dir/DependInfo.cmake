@@ -17,6 +17,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/Server.dir/EpollWrapper/address.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/coswap.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/Server.dir/coswap.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/example/echoServer.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/Server.dir/example/echoServer.cpp.o"
+  "/home/lizhaolong/suanfa/RocketCo/example/testRead.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/Server.dir/example/testRead.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/hook.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/Server.dir/hook.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

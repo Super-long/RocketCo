@@ -2,8 +2,7 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="RocketCo" targetName="Client" />
-      <config projectName="RocketCo" targetName="Server" />
+      <config projectName="RocketCo" targetName="RocketCo" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -32,21 +31,12 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
   </component>
-  <component name="RunManager" selected="CMake Application.Client">
-    <configuration name="Client" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RocketCo" TARGET_NAME="Client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RocketCo" RUN_TARGET_NAME="Client">
+  <component name="RunManager">
+    <configuration name="RocketCo" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RocketCo" TARGET_NAME="RocketCo" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RocketCo" RUN_TARGET_NAME="RocketCo">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RocketCo" TARGET_NAME="Server" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RocketCo" RUN_TARGET_NAME="Server">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <list>
-      <item itemvalue="CMake Application.Client" />
-      <item itemvalue="CMake Application.Server" />
-    </list>
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -79,7 +69,8 @@
       <workItem from="1592275087577" duration="8141000" />
       <workItem from="1592302262966" duration="2067000" />
       <workItem from="1592353435807" duration="1970000" />
-      <workItem from="1592355651649" duration="11898000" />
+      <workItem from="1592355651649" duration="21437000" />
+      <workItem from="1592402270835" duration="379000" />
     </task>
     <servers />
   </component>
@@ -112,19 +103,19 @@
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
     <state width="498" height="447" key="SwitcherDM/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591838291689" />
-    <state x="618" y="367" key="com.intellij.ide.util.TipDialog" timestamp="1592355653038">
+    <state x="618" y="367" key="com.intellij.ide.util.TipDialog" timestamp="1592402269935">
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
-    <state x="618" y="367" key="com.intellij.ide.util.TipDialog/0.0.1920.1030@0.0.1920.1030" timestamp="1592355653038" />
+    <state x="618" y="367" key="com.intellij.ide.util.TipDialog/0.0.1920.1030@0.0.1920.1030" timestamp="1592402269935" />
     <state x="618" y="367" key="com.intellij.ide.util.TipDialog/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591923176458" />
-    <state x="624" y="233" key="run.anything.popup" timestamp="1592379262823">
+    <state x="624" y="233" width="672" height="677" key="run.anything.popup" timestamp="1592401626143">
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
-    <state x="624" y="233" key="run.anything.popup/0.0.1920.1030@0.0.1920.1030" timestamp="1592379262823" />
-    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup" timestamp="1592377917311">
+    <state x="624" y="233" width="672" height="677" key="run.anything.popup/0.0.1920.1030@0.0.1920.1030" timestamp="1592401626143" />
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup" timestamp="1592390196820">
       <screen x="0" y="0" width="1920" height="1030" />
     </state>
-    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/0.0.1920.1030@0.0.1920.1030" timestamp="1592377917311" />
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/0.0.1920.1030@0.0.1920.1030" timestamp="1592390196820" />
     <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/1920.0.1920.1080/0.0.1920.1030@0.0.1920.1030" timestamp="1591960682114" />
   </component>
 </project>

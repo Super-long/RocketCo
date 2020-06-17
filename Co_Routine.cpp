@@ -578,15 +578,25 @@ namespace RocketCo {
         return env->Co_CallBack[env->Co_ESP - 1];
     }
 
-    Co_Entity* GetCurrentCoEntity(){
+/*    Co_Entity* GetCurrentCoEntity(){
         if( !get_thisThread_Env()){
             init_thisThread_Env();
+        }
+        return GetCurrCo(get_thisThread_Env());
+    }*/
+
+    // 为什么不像上面那样写呢,上面的写法会在主线程调用含有co_enable_hook_sys的函数是出现问题
+    Co_Entity* GetCurrentCoEntity(){
+
+        if( !get_thisThread_Env()){
+            return nullptr;
         }
         return GetCurrCo(get_thisThread_Env());
     }
 
     bool GetCurrentCoIsHook(){
-        return GetCurrentCoEntity()->IsHook;
+        Co_Entity* Temp = GetCurrentCoEntity();
+        return Temp && GetCurrentCoEntity()->IsHook;
     }
 
     uint32_t EventPoll2Epoll(short events){
@@ -678,7 +688,6 @@ namespace RocketCo {
             }
             // nfds比较多而且失败的失败的话就触发超时,这里其实可以对超时事件做一个把控
         }
-
         //std::cout << "添加到定时器中\n";
         // 添加到定时器中
 
@@ -688,26 +697,24 @@ namespace RocketCo {
 
         // 指定当前时间, 把此次poll中的时间插入到时间轮中,且所有事件超时时间相同
         int ret = Epoll_->TW.AddTimeOut(poll_, Now);
-        //std::cout << "时间轮插入完成\n";
-        // 此次被触发或者超时的事件数
+        // std::cout << "时间轮插入完成\n";
+        // 返回值为零正常,其他为出现错误
         int RaisedNumber = 0;
         if(ret != 0){
             RaisedNumber = -1;
         } else { // 等于零的话说明上面插入正常,否则的话在ret那一行出现了错误
+            // TODO 问题出在这里
             Co_yeild(get_thisThread_Env()); // 切出时间片，因为此时应该阻塞了，当事件ok的时候会执行回调切回来
 
             RaisedNumber = poll_->RaisedNumber; // 在epoll中触发回调时修改
         }
-
         // 已经执行完，这里把这些事件从时间轮和epoll中去除。
         RemoveFromWheel<CoEventItem,CoEventItemIink>(poll_);
-
         for (int i = 0; i < nfds; ++i){
             int fd = fds[i].fd;
             epoll_ctl(epfd, EPOLL_CTL_DEL, fd, &poll_->WillJoinEpoll[i].Event);
             fds[i].revents = poll_->fds[i].revents;
         }
-
         if(poll_->WillJoinEpoll != array){
             delete [] poll_->WillJoinEpoll;
             poll_->WillJoinEpoll = nullptr;

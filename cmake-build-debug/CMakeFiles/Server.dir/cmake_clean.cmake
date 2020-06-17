@@ -4,6 +4,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/Server.dir/coctx_swap.S.o"
   "CMakeFiles/Server.dir/coswap.cpp.o"
   "CMakeFiles/Server.dir/example/echoServer.cpp.o"
+  "CMakeFiles/Server.dir/example/testRead.cpp.o"
   "CMakeFiles/Server.dir/hook.cpp.o"
   "Server"
   "Server.pdb"

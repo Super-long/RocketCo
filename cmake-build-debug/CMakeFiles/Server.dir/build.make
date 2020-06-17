@@ -70,9 +70,22 @@ CMakeFiles/Server.dir/example/echoServer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Server.dir/example/echoServer.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/example/echoServer.cpp -o CMakeFiles/Server.dir/example/echoServer.cpp.s
 
+CMakeFiles/Server.dir/hook.cpp.o: CMakeFiles/Server.dir/flags.make
+CMakeFiles/Server.dir/hook.cpp.o: ../hook.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Server.dir/hook.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/hook.cpp.o -c /home/lizhaolong/suanfa/RocketCo/hook.cpp
+
+CMakeFiles/Server.dir/hook.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Server.dir/hook.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lizhaolong/suanfa/RocketCo/hook.cpp > CMakeFiles/Server.dir/hook.cpp.i
+
+CMakeFiles/Server.dir/hook.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Server.dir/hook.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/hook.cpp -o CMakeFiles/Server.dir/hook.cpp.s
+
 CMakeFiles/Server.dir/coswap.cpp.o: CMakeFiles/Server.dir/flags.make
 CMakeFiles/Server.dir/coswap.cpp.o: ../coswap.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Server.dir/coswap.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Server.dir/coswap.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/coswap.cpp.o -c /home/lizhaolong/suanfa/RocketCo/coswap.cpp
 
 CMakeFiles/Server.dir/coswap.cpp.i: cmake_force
@@ -85,12 +98,12 @@ CMakeFiles/Server.dir/coswap.cpp.s: cmake_force
 
 CMakeFiles/Server.dir/coctx_swap.S.o: CMakeFiles/Server.dir/flags.make
 CMakeFiles/Server.dir/coctx_swap.S.o: ../coctx_swap.S
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building ASM object CMakeFiles/Server.dir/coctx_swap.S.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building ASM object CMakeFiles/Server.dir/coctx_swap.S.o"
 	/usr/bin/cc $(ASM_DEFINES) $(ASM_INCLUDES) $(ASM_FLAGS) -o CMakeFiles/Server.dir/coctx_swap.S.o -c /home/lizhaolong/suanfa/RocketCo/coctx_swap.S
 
 CMakeFiles/Server.dir/Co_Routine.cpp.o: CMakeFiles/Server.dir/flags.make
 CMakeFiles/Server.dir/Co_Routine.cpp.o: ../Co_Routine.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Server.dir/Co_Routine.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Server.dir/Co_Routine.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/Co_Routine.cpp.o -c /home/lizhaolong/suanfa/RocketCo/Co_Routine.cpp
 
 CMakeFiles/Server.dir/Co_Routine.cpp.i: cmake_force
@@ -103,7 +116,7 @@ CMakeFiles/Server.dir/Co_Routine.cpp.s: cmake_force
 
 CMakeFiles/Server.dir/EpollWrapper/address.cpp.o: CMakeFiles/Server.dir/flags.make
 CMakeFiles/Server.dir/EpollWrapper/address.cpp.o: ../EpollWrapper/address.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Server.dir/EpollWrapper/address.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Server.dir/EpollWrapper/address.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/EpollWrapper/address.cpp.o -c /home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp
 
 CMakeFiles/Server.dir/EpollWrapper/address.cpp.i: cmake_force
@@ -114,40 +127,42 @@ CMakeFiles/Server.dir/EpollWrapper/address.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Server.dir/EpollWrapper/address.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp -o CMakeFiles/Server.dir/EpollWrapper/address.cpp.s
 
-CMakeFiles/Server.dir/hook.cpp.o: CMakeFiles/Server.dir/flags.make
-CMakeFiles/Server.dir/hook.cpp.o: ../hook.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Server.dir/hook.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/hook.cpp.o -c /home/lizhaolong/suanfa/RocketCo/hook.cpp
+CMakeFiles/Server.dir/example/testRead.cpp.o: CMakeFiles/Server.dir/flags.make
+CMakeFiles/Server.dir/example/testRead.cpp.o: ../example/testRead.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Server.dir/example/testRead.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/example/testRead.cpp.o -c /home/lizhaolong/suanfa/RocketCo/example/testRead.cpp
 
-CMakeFiles/Server.dir/hook.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Server.dir/hook.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lizhaolong/suanfa/RocketCo/hook.cpp > CMakeFiles/Server.dir/hook.cpp.i
+CMakeFiles/Server.dir/example/testRead.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Server.dir/example/testRead.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lizhaolong/suanfa/RocketCo/example/testRead.cpp > CMakeFiles/Server.dir/example/testRead.cpp.i
 
-CMakeFiles/Server.dir/hook.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Server.dir/hook.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/hook.cpp -o CMakeFiles/Server.dir/hook.cpp.s
+CMakeFiles/Server.dir/example/testRead.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Server.dir/example/testRead.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lizhaolong/suanfa/RocketCo/example/testRead.cpp -o CMakeFiles/Server.dir/example/testRead.cpp.s
 
 # Object files for target Server
 Server_OBJECTS = \
 "CMakeFiles/Server.dir/example/echoServer.cpp.o" \
+"CMakeFiles/Server.dir/hook.cpp.o" \
 "CMakeFiles/Server.dir/coswap.cpp.o" \
 "CMakeFiles/Server.dir/coctx_swap.S.o" \
 "CMakeFiles/Server.dir/Co_Routine.cpp.o" \
 "CMakeFiles/Server.dir/EpollWrapper/address.cpp.o" \
-"CMakeFiles/Server.dir/hook.cpp.o"
+"CMakeFiles/Server.dir/example/testRead.cpp.o"
 
 # External object files for target Server
 Server_EXTERNAL_OBJECTS =
 
 Server: CMakeFiles/Server.dir/example/echoServer.cpp.o
+Server: CMakeFiles/Server.dir/hook.cpp.o
 Server: CMakeFiles/Server.dir/coswap.cpp.o
 Server: CMakeFiles/Server.dir/coctx_swap.S.o
 Server: CMakeFiles/Server.dir/Co_Routine.cpp.o
 Server: CMakeFiles/Server.dir/EpollWrapper/address.cpp.o
-Server: CMakeFiles/Server.dir/hook.cpp.o
+Server: CMakeFiles/Server.dir/example/testRead.cpp.o
 Server: CMakeFiles/Server.dir/build.make
 Server: CMakeFiles/Server.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable Server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable Server"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Server.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

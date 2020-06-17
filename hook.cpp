@@ -159,6 +159,7 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
 
    int socket(int domain, int type, int protocol){
         HOOK_SYS_FUNC(socket);
+        std::cout << "进入socket\n";
         if(!RocketCo::GetCurrentCoIsHook()){
             return Hook_socket_t(domain, type, protocol);
         }
@@ -169,6 +170,7 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
         }
         FdAttributes* Attributes = CreateAFdAttributes(fd);
         Attributes->domain = domain;
+
         // TODO 套接字状态和地址还未设定
 
         // F_SETFL会把套接字设置成非阻塞的
@@ -178,8 +180,8 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
    }
 
    ssize_t read(int fd, void *buf, size_t nbyte){
-        //std::cout << "进入函数\n";
         HOOK_SYS_FUNC(read);
+        std::cout << "进入read\n";
         if(!RocketCo::GetCurrentCoIsHook()){
             std::cout << "hello\n";
             return Hook_read_t(fd, buf, nbyte);
@@ -190,7 +192,6 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
             return Hook_read_t(fd, buf, nbyte);
         }
 
-        std::cout << "hello world\n";
         std::int64_t timeout = Attributes->read_timeout;
         struct pollfd pollEvent;
         bzero(&pollEvent, sizeof(pollfd));
@@ -347,16 +348,16 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
 
         int ret = Hook_connect_t(fd, address, address_len);
 
-        FdAttributes* Attributes = CreateAFdAttributes(fd);
+        FdAttributes* Attributes = GetFdAttributesByFd(fd);
+        //printf("fdFlag 0x%X ; O_NONBLOCK :0x%X\n", Attributes->fdFlag,O_NONBLOCK);
         if(!Attributes || Attributes->fdFlag & O_NONBLOCK)
             return ret; // 不是由hook的socket创建的,或者本来就是非阻塞
-        if(!(ret < 0 && errno == EINPROGRESS))
+        if(!(ret < 0 && errno == EINPROGRESS)) // errno == 115 Operation now in progress
             return ret;
 
         if( sizeof(Attributes->addr) >= address_len ){
             memcpy(&(Attributes->addr),address,(int)address_len);
         }
-
         int res = 0;
         struct pollfd pollEvent = {0};
         int RetransmissionInterval = 2000; // ms
@@ -364,7 +365,6 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
             bzero(&pollEvent, sizeof(struct pollfd));
             pollEvent.fd = fd;
             pollEvent.events = ( POLLOUT | POLLERR | POLLHUP );
-
             res = poll(&pollEvent, 1, RetransmissionInterval);  // 切换CPU执行权
 
             if(1 == res && pollEvent.revents & POLLOUT){ // 此返回事件不是超时事件
