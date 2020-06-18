@@ -213,32 +213,59 @@ coswap.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.s
 .PHONY : coswap.cpp.s
 
-example/usingPoll.o: example/usingPoll.cpp.o
+example/SimpleExample.o: example/SimpleExample.cpp.o
 
-.PHONY : example/usingPoll.o
+.PHONY : example/SimpleExample.o
 
 # target to build an object file
-example/usingPoll.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingPoll.cpp.o
-.PHONY : example/usingPoll.cpp.o
+example/SimpleExample.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleExample.cpp.o
+.PHONY : example/SimpleExample.cpp.o
 
-example/usingPoll.i: example/usingPoll.cpp.i
+example/SimpleExample.i: example/SimpleExample.cpp.i
 
-.PHONY : example/usingPoll.i
+.PHONY : example/SimpleExample.i
 
 # target to preprocess a source file
-example/usingPoll.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingPoll.cpp.i
-.PHONY : example/usingPoll.cpp.i
+example/SimpleExample.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleExample.cpp.i
+.PHONY : example/SimpleExample.cpp.i
 
-example/usingPoll.s: example/usingPoll.cpp.s
+example/SimpleExample.s: example/SimpleExample.cpp.s
 
-.PHONY : example/usingPoll.s
+.PHONY : example/SimpleExample.s
 
 # target to generate assembly for a file
-example/usingPoll.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingPoll.cpp.s
-.PHONY : example/usingPoll.cpp.s
+example/SimpleExample.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleExample.cpp.s
+.PHONY : example/SimpleExample.cpp.s
+
+example/usingSev.o: example/usingSev.cpp.o
+
+.PHONY : example/usingSev.o
+
+# target to build an object file
+example/usingSev.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingSev.cpp.o
+.PHONY : example/usingSev.cpp.o
+
+example/usingSev.i: example/usingSev.cpp.i
+
+.PHONY : example/usingSev.i
+
+# target to preprocess a source file
+example/usingSev.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingSev.cpp.i
+.PHONY : example/usingSev.cpp.i
+
+example/usingSev.s: example/usingSev.cpp.s
+
+.PHONY : example/usingSev.s
+
+# target to generate assembly for a file
+example/usingSev.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingSev.cpp.s
+.PHONY : example/usingSev.cpp.s
 
 hook.o: hook.cpp.o
 
@@ -286,9 +313,12 @@ help:
 	@echo "... coswap.o"
 	@echo "... coswap.i"
 	@echo "... coswap.s"
-	@echo "... example/usingPoll.o"
-	@echo "... example/usingPoll.i"
-	@echo "... example/usingPoll.s"
+	@echo "... example/SimpleExample.o"
+	@echo "... example/SimpleExample.i"
+	@echo "... example/SimpleExample.s"
+	@echo "... example/usingSev.o"
+	@echo "... example/usingSev.i"
+	@echo "... example/usingSev.s"
 	@echo "... hook.o"
 	@echo "... hook.i"
 	@echo "... hook.s"

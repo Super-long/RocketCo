@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 enable_language(C ASM)
 link_libraries(-ldl) # 防止dlsym出现未定义的引用
+link_libraries(-pthread)
 SET(CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS} -g -fno-strict-aliasing -O2 -Wall -export-dynamic -Wall -pipe  -D_GNU_SOURCE -D_REENTRANT -fPIC -Wno-deprecated -m64)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
@@ -12,7 +13,7 @@ SET(CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS} -g -fno-strict-aliasing -O2 -Wall -export-d
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-builtin-read")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-builtin-write")
 
-add_executable(RocketCo example/usingPoll.cpp
+add_executable(RocketCo example/SimpleRoutineExample.cpp
         hook.cpp
         coswap.h coswap.cpp coctx_swap.S
         Co_Entity.h Co_Routine.h Co_Routine.cpp

@@ -17,9 +17,11 @@
 #include <cstdarg>  // 可变函数参数相关
 #include <errno.h>
 
-#include <map>
 #include <iostream>
+#include <algorithm>
 #include <iterator>
+#include <vector>
+#include <string>
 #include <unordered_map>
 
 #include <iostream>
@@ -37,6 +39,10 @@
     typedef int (*close_t)(int fd);
 
     typedef int (*fcntl_t)(int fd, int cmd, ...);   // 最后一个参数是可变参
+
+    typedef int (*setenv_t)(const char *name, const char *value, int overwrite);
+    typedef int (*unsetenv_t)(const char *name);
+    typedef char *(*getenv_t)(const char *name);
     // ------------------------------------
 
     // ------------------------------------
@@ -53,6 +59,11 @@
     static close_t Hook_close_t = (close_t)dlsym(RTLD_NEXT, "close");
 
     static fcntl_t Hook_fcntl_t = (fcntl_t)dlsym(RTLD_NEXT, "fcntl");
+
+    static setenv_t Hook_setenv_t = (setenv_t)dlsym(RTLD_NEXT, "setenv");
+    static unsetenv_t Hook_unsetenv_t = (unsetenv_t)dlsym(RTLD_NEXT, "unsetenv");
+    static getenv_t Hook_getenv_t = (getenv_t)dlsym(RTLD_NEXT, "getenv");
+
 
     // ------------------------------------
     // 必要的结构体,为了少一次系统调用,且记录用户原本注册的事件
@@ -252,6 +263,7 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
                     flag |= O_NONBLOCK;
                 }
                 ret = Hook_fcntl_t(fd, cmd, flag);  // 一定是非阻塞的
+                // fcntl正常返回0
                 if(!ret && Attributes){
                     Attributes->fdFlag = param;     // Attributes中存储原来的信息
                 }
@@ -402,10 +414,98 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
         return Hook_close_t(fd);
     }
 
+    struct Sysenv{
+        // {name, data}
+        std::unordered_map<std::string, std::string> env;
+        //std::vector<std::pair<std::string,std::string>> env;
+    };
+
+    static Sysenv co_sysenv; // 全局变量,默认填充0
+
+    void InitEnv(std::vector<std::pair<std::string,std::string>>* para){ //顶层const,可修改值
+        // 仅初始化一次
+        if(co_sysenv.env.size()){
+            return;
+        }
+        for(const auto& x : *para){  // 把传入的参数进行拷贝
+            co_sysenv.env[x.first] = x.second;
+        }
+        // 哈希表是一个更优的选择
+/*        if(co_sysenv.env.size() > 1){   // 对传入的数据排序,增加检索时的效率
+            std::sort(co_sysenv.env.begin(), co_sysenv.env.end());
+        }
+        // 去重
+        co_sysenv.env.erase(std::unique(co_sysenv.env.begin(), co_sysenv.env.end()), co_sysenv.env.end());*/
+        return;
+    }
+
+    int setenv(const char *n, const char *value, int overwrite){
+        HOOK_SYS_FUNC(setenv);
+        // 只有函数已经被hook且调用过initEnv才会使用用户态的env
+        if(RocketCo::GetCurrentCoIsHook() && co_sysenv.env.size()){
+            RocketCo::Co_Entity* Co = RocketCo::GetCurrentCoEntity();
+            if(Co != nullptr){  // 防止主线程调用含有enable_hook的函数
+                if(!Co->Env){
+                    // 没有拷贝,还是使用一个指针,即所有协程共享一个全局列表
+                    // 想改的话分配一份内存拷贝一下就可以了,不过需要注意内存的释放
+                    Co->Env = static_cast<void*>(&co_sysenv);
+                }
+                std::string Name(n);
+                std::string Value(value);
+                if(co_sysenv.env.find(Name) != co_sysenv.env.end()){
+                    if(co_sysenv.env[Name] == "" || overwrite){
+                        co_sysenv.env[Name] = std::move(Value);
+                    }
+                    return 0;
+                }
+            }
+        }
+        return Hook_setenv_t(n, value, overwrite);
+    }
+
+    int unsetenv(const char *n){
+        HOOK_SYS_FUNC(unsetenv);
+        if(RocketCo::GetCurrentCoIsHook() && co_sysenv.env.size()){
+            RocketCo::Co_Entity* Co = RocketCo::GetCurrentCoEntity();
+            if(Co != nullptr){
+                if(!Co->Env){
+                    Co->Env = static_cast<void*>(&co_sysenv);
+                }
+                std::string name(n);
+                if(co_sysenv.env.find(name) != co_sysenv.env.end()){
+                    co_sysenv.env[name] = "";
+                    return 0;
+                }
+            }
+        }
+        return Hook_unsetenv_t(n);
+    }
+
+    char *getenv( const char *n ){
+        HOOK_SYS_FUNC(getenv);
+
+        if(RocketCo::GetCurrentCoIsHook() && co_sysenv.env.size()){
+            RocketCo::Co_Entity* Co = RocketCo::GetCurrentCoEntity();
+            if(Co != nullptr){
+                if(!Co->Env){
+                    Co->Env = static_cast<void*>(&co_sysenv);
+                }
+                std::string name(n);
+                if(co_sysenv.env.find(name) != co_sysenv.env.end()){
+                    // 算是一个弥补性的做法了
+                    return const_cast<char*>(co_sysenv.env[name].data());
+                    //return co_sysenv.env[name].data();
+                }
+            }
+        }
+        return Hook_getenv_t(n);
+    }
+
     // 包含了这个函数才会把hook.cpp中的内容链接到源程序中,从而完成hook
     void co_enable_hook_sys(){
         RocketCo::Co_Entity* Co = RocketCo::GetCurrentCoEntity();
         if(Co){
             Co->IsHook = true;
         }
+
     }

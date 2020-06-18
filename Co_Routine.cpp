@@ -359,6 +359,7 @@ namespace RocketCo {
         Co->env = env;
         Co->fun = fun;
         Co->arg = arg;
+        Co->Env = nullptr;  // 命名我得承认有些许的愚蠢
 
         Co_Stack_Member* Temp_StackMem = nullptr;
         if(Temp_attr.shareStack){   // 共享栈,栈需要用户指定
@@ -556,7 +557,6 @@ namespace RocketCo {
     // 是当前线程的CPU执行权从当前正在运行的协程转移到
     void Co_resume(Co_Entity* Co) {
         Co_Rountinue_Env *env = Co->env;
-
         // 获取当前正在进行的协程主体,方便进行转换.ESP指向了当前的“调用栈”顶
         Co_Entity *current = env->Co_CallBack[env->Co_ESP - 1];
         if (!Co->ISstart) { // 还未执行过,我们需要获取寄存器的值.
