@@ -126,10 +126,10 @@
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/coswap.h">
 			<Option target="RocketCo"/>
 		</Unit>
-		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/SimpleExample.cpp">
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/SimpleRoutineExample.cpp">
 			<Option target="RocketCo"/>
 		</Unit>
-		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/usingSev.cpp">
+		<Unit filename="/home/lizhaolong/suanfa/RocketCo/example/test.cpp">
 			<Option target="RocketCo"/>
 		</Unit>
 		<Unit filename="/home/lizhaolong/suanfa/RocketCo/hook.cpp">

@@ -213,59 +213,59 @@ coswap.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/coswap.cpp.s
 .PHONY : coswap.cpp.s
 
-example/SimpleExample.o: example/SimpleExample.cpp.o
+example/SimpleRoutineExample.o: example/SimpleRoutineExample.cpp.o
 
-.PHONY : example/SimpleExample.o
-
-# target to build an object file
-example/SimpleExample.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleExample.cpp.o
-.PHONY : example/SimpleExample.cpp.o
-
-example/SimpleExample.i: example/SimpleExample.cpp.i
-
-.PHONY : example/SimpleExample.i
-
-# target to preprocess a source file
-example/SimpleExample.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleExample.cpp.i
-.PHONY : example/SimpleExample.cpp.i
-
-example/SimpleExample.s: example/SimpleExample.cpp.s
-
-.PHONY : example/SimpleExample.s
-
-# target to generate assembly for a file
-example/SimpleExample.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleExample.cpp.s
-.PHONY : example/SimpleExample.cpp.s
-
-example/usingSev.o: example/usingSev.cpp.o
-
-.PHONY : example/usingSev.o
+.PHONY : example/SimpleRoutineExample.o
 
 # target to build an object file
-example/usingSev.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingSev.cpp.o
-.PHONY : example/usingSev.cpp.o
+example/SimpleRoutineExample.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleRoutineExample.cpp.o
+.PHONY : example/SimpleRoutineExample.cpp.o
 
-example/usingSev.i: example/usingSev.cpp.i
+example/SimpleRoutineExample.i: example/SimpleRoutineExample.cpp.i
 
-.PHONY : example/usingSev.i
+.PHONY : example/SimpleRoutineExample.i
 
 # target to preprocess a source file
-example/usingSev.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingSev.cpp.i
-.PHONY : example/usingSev.cpp.i
+example/SimpleRoutineExample.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleRoutineExample.cpp.i
+.PHONY : example/SimpleRoutineExample.cpp.i
 
-example/usingSev.s: example/usingSev.cpp.s
+example/SimpleRoutineExample.s: example/SimpleRoutineExample.cpp.s
 
-.PHONY : example/usingSev.s
+.PHONY : example/SimpleRoutineExample.s
 
 # target to generate assembly for a file
-example/usingSev.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/usingSev.cpp.s
-.PHONY : example/usingSev.cpp.s
+example/SimpleRoutineExample.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleRoutineExample.cpp.s
+.PHONY : example/SimpleRoutineExample.cpp.s
+
+example/test.o: example/test.cpp.o
+
+.PHONY : example/test.o
+
+# target to build an object file
+example/test.cpp.o:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/test.cpp.o
+.PHONY : example/test.cpp.o
+
+example/test.i: example/test.cpp.i
+
+.PHONY : example/test.i
+
+# target to preprocess a source file
+example/test.cpp.i:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/test.cpp.i
+.PHONY : example/test.cpp.i
+
+example/test.s: example/test.cpp.s
+
+.PHONY : example/test.s
+
+# target to generate assembly for a file
+example/test.cpp.s:
+	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/test.cpp.s
+.PHONY : example/test.cpp.s
 
 hook.o: hook.cpp.o
 
@@ -313,12 +313,12 @@ help:
 	@echo "... coswap.o"
 	@echo "... coswap.i"
 	@echo "... coswap.s"
-	@echo "... example/SimpleExample.o"
-	@echo "... example/SimpleExample.i"
-	@echo "... example/SimpleExample.s"
-	@echo "... example/usingSev.o"
-	@echo "... example/usingSev.i"
-	@echo "... example/usingSev.s"
+	@echo "... example/SimpleRoutineExample.o"
+	@echo "... example/SimpleRoutineExample.i"
+	@echo "... example/SimpleRoutineExample.s"
+	@echo "... example/test.o"
+	@echo "... example/test.i"
+	@echo "... example/test.s"
 	@echo "... hook.o"
 	@echo "... hook.i"
 	@echo "... hook.s"

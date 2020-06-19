@@ -16,8 +16,8 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/lizhaolong/suanfa/RocketCo/Co_Routine.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/Co_Routine.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/EpollWrapper/address.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/EpollWrapper/address.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/coswap.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/coswap.cpp.o"
-  "/home/lizhaolong/suanfa/RocketCo/example/SimpleExample.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/example/SimpleExample.cpp.o"
-  "/home/lizhaolong/suanfa/RocketCo/example/usingSev.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/example/usingSev.cpp.o"
+  "/home/lizhaolong/suanfa/RocketCo/example/SimpleRoutineExample.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/example/SimpleRoutineExample.cpp.o"
+  "/home/lizhaolong/suanfa/RocketCo/example/test.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/example/test.cpp.o"
   "/home/lizhaolong/suanfa/RocketCo/hook.cpp" "/home/lizhaolong/suanfa/RocketCo/cmake-build-debug/CMakeFiles/RocketCo.dir/hook.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

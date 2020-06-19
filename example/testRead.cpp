@@ -12,6 +12,7 @@ int main(){
     char buffer[10000];
     int fd = socket(PF_INET, SOCK_STREAM, 0);
     read(5, buffer, 10000);
-
+    write(5, buffer, 10000);
+    close(fd);
     return 0;
 }

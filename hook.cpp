@@ -18,8 +18,6 @@
 #include <errno.h>
 
 #include <iostream>
-#include <algorithm>
-#include <iterator>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -43,6 +41,18 @@
     typedef int (*setenv_t)(const char *name, const char *value, int overwrite);
     typedef int (*unsetenv_t)(const char *name);
     typedef char *(*getenv_t)(const char *name);
+
+    // sendto, recvfrom与UDP相关
+    typedef ssize_t (*sendto_t)(int fd, const void *message, size_t length,
+                                int flags, const struct sockaddr *dest_addr,
+                                socklen_t dest_len);
+
+    typedef ssize_t (*recvfrom_t)(int fd, void *buffer, size_t length,
+                                  int flags, struct sockaddr *address,
+                                  socklen_t *address_len);
+
+    typedef ssize_t (*send_t)(int fd, const void *buffer, size_t length, int flags);
+    typedef ssize_t (*recv_t)(int fd, void *buffer, size_t length, int flags);
     // ------------------------------------
 
     // ------------------------------------
@@ -64,6 +74,10 @@
     static unsetenv_t Hook_unsetenv_t = (unsetenv_t)dlsym(RTLD_NEXT, "unsetenv");
     static getenv_t Hook_getenv_t = (getenv_t)dlsym(RTLD_NEXT, "getenv");
 
+    static sendto_t Hook_sendto_t = (sendto_t)dlsym(RTLD_NEXT, "sendto");
+    static recvfrom_t Hook_recvfrom_t = (recvfrom_t)dlsym(RTLD_NEXT, "recvfrom");
+    static send_t Hook_send_t = (send_t)dlsym(RTLD_NEXT, "send_t");
+    static recv_t Hook_recv_t = (recv_t)dlsym(RTLD_NEXT, "recv_t");
 
     // ------------------------------------
     // 必要的结构体,为了少一次系统调用,且记录用户原本注册的事件
@@ -194,12 +208,10 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
         HOOK_SYS_FUNC(read);
         std::cout << "进入read\n";
         if(!RocketCo::GetCurrentCoIsHook()){
-            std::cout << "hello\n";
             return Hook_read_t(fd, buf, nbyte);
         }
         FdAttributes* Attributes = GetFdAttributesByFd(fd);
         if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
-            std::cout << "world\n";
             return Hook_read_t(fd, buf, nbyte);
         }
 
@@ -499,6 +511,110 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
             }
         }
         return Hook_getenv_t(n);
+    }
+
+    ssize_t sendto(int fd, const void *message, size_t length,
+                   int flags, const struct sockaddr *dest_addr,
+                   socklen_t dest_len){
+        HOOK_SYS_FUNC(sendto);
+        if(!RocketCo::GetCurrentCoIsHook()){
+            return Hook_sendto_t(fd, message, length, flags, dest_addr, dest_len);
+        }
+        FdAttributes* Attributes = GetFdAttributesByFd(fd);
+        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
+            return Hook_sendto_t(fd, message, length, flags, dest_addr, dest_len);
+        }
+        ssize_t res = Hook_sendto_t(fd, message, length, flags, dest_addr, dest_len);
+        // 因为套接字非阻塞, 检测下参数什么的是否可以接收报文
+        if(res < 0 && errno == EAGAIN){
+            int timeout = Attributes->wirte_timeout;
+            struct pollfd event = {0};
+            event.fd = fd;
+            event.events = POLLOUT | POLLERR | POLLHUP;
+            // 要发送的地址比较远可以把超时时间延长
+            poll(&event, 1, timeout);
+            res = Hook_sendto_t(fd, message, length, flags, dest_addr, dest_len);
+        }
+        return res;
+    }
+
+    ssize_t recvfrom(int fd, void *buffer, size_t length,
+                      int flags, struct sockaddr *address,
+                      socklen_t *address_len){
+        HOOK_SYS_FUNC(recvfrom);
+        if(!RocketCo::GetCurrentCoIsHook()){
+            return Hook_recvfrom_t(fd, buffer, length, flags, address, address_len);
+        }
+        FdAttributes* Attributes = GetFdAttributesByFd(fd);
+        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
+            return Hook_recvfrom_t(fd, buffer, length, flags, address, address_len);
+        }
+        ssize_t res = Hook_recvfrom_t(fd, buffer, length, flags, address, address_len);
+        int timeout = Attributes->wirte_timeout;
+        struct pollfd event = {0};
+        event.fd = fd;
+        event.events = POLLIN | POLLERR | POLLHUP;
+        poll(&event, 1, timeout);
+        res = Hook_recvfrom_t(fd, buffer, length, flags, address, address_len);
+        return res;
+    }
+
+    ssize_t send(int fd, const void *buffer, size_t length, int flags){
+        HOOK_SYS_FUNC(send);
+        if(!RocketCo::GetCurrentCoIsHook()){
+            return Hook_send_t(fd, buffer, length, flags);
+        }
+        FdAttributes* Attributes = GetFdAttributesByFd(fd);
+        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
+            return Hook_send_t(fd, buffer, length, flags);
+        }
+        size_t wrotelen = 0;
+        ssize_t writeret = Hook_send_t(fd, buffer, length, flags);
+        // socket突然断开会出现返回0
+        if (writeret == 0){
+            return writeret;
+        }
+        if( writeret > 0 ){
+            wrotelen += writeret;
+        }
+        while( wrotelen < length ){
+
+            struct pollfd event = { 0 };
+            event.fd = fd;
+            event.events = ( POLLOUT | POLLERR | POLLHUP );
+            poll( &event, 1, Attributes->wirte_timeout);
+
+            writeret = Hook_send_t(fd,(const char*)buffer + wrotelen,length - wrotelen,flags );
+
+            if( writeret <= 0 ) break;
+
+            wrotelen += writeret ;
+        }
+        if (writeret <= 0 && wrotelen == 0){
+            return writeret;
+        }
+        return wrotelen;
+    }
+
+    ssize_t recv(int fd, void *buffer, size_t length, int flags){
+        HOOK_SYS_FUNC(recv);
+        if(!RocketCo::GetCurrentCoIsHook()){
+            return Hook_recv_t(fd, buffer, length, flags);
+        }
+        FdAttributes* Attributes = GetFdAttributesByFd(fd);
+        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
+            return Hook_recv_t(fd, buffer, length, flags);
+        }
+        struct pollfd event = { 0 };
+        event.fd = fd;
+        event.events = ( POLLOUT | POLLERR | POLLHUP );
+        poll( &event, 1, Attributes->wirte_timeout);
+
+        ssize_t res = Hook_recv_t(fd, buffer, length, flags);
+        if(res < 0){
+            std::cerr << "ERROR : error in recv, return value is lower than 0.\n";
+        }
+        return res;
     }
 
     // 包含了这个函数才会把hook.cpp中的内容链接到源程序中,从而完成hook
