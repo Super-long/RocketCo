@@ -69,5 +69,9 @@ int main(){
     RocketCo::Co_resume(product);
 
     RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(), nullptr, nullptr);
+    // 没在Eventloop中设置回调，永远不会跑到Delete这里
+    RocketCo::FreeCo_Entity(consumer);
+    RocketCo::FreeCo_Entity(product);
+    RocketCo::ConditionVariableFree(env->cond);
     return 0;
 }

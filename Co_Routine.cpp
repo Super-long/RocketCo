@@ -337,6 +337,10 @@ namespace RocketCo {
     };
 
     void FreeCo_Entity(Co_Entity* Co){
+        if(!Co->IsShareStack){
+            delete [] Co->Csm->stack_buffer;
+            delete Co->Csm;
+        }
         delete Co;
         return;
     }
@@ -344,6 +348,10 @@ namespace RocketCo {
     // 传入一个指针数组
     void Free_Co_Entity_Array(Co_Entity* Co[], int len){
         for (int i = 0; i < len; ++i) {
+            if(!Co[i]->IsShareStack){   // 不是共享栈的时候每一个协程都需要自行分配内存
+                delete [] Co[i]->Csm->stack_buffer;
+                delete Co[i]->Csm;
+            }
             delete Co[i];
         }
         return;
@@ -357,6 +365,7 @@ namespace RocketCo {
         static int flags = 10;
 
         Co_Attribute Temp_attr; // 默认栈大小为128KB,且不支持共享栈
+        memset(&Temp_attr, 0, sizeof(Temp_attr));
         if(attr){
             memcpy(&Temp_attr, attr, sizeof(Co_Attribute));
         }
@@ -382,6 +391,7 @@ namespace RocketCo {
 
         Co_Stack_Member* Temp_StackMem = nullptr;
         if(Temp_attr.shareStack){   // 共享栈,栈需要用户指定
+            Co->IsShareStack = true;
             int index = Temp_attr.shareStack->alloc_idx % Temp_attr.shareStack->count; // 得到此次使用的共享栈下标
             Temp_attr.shareStack->alloc_idx++;
             Temp_StackMem = Temp_attr.shareStack->stack_array[index]; // 栈的实体
@@ -437,7 +447,8 @@ namespace RocketCo {
     void init_thisThread_Env(){
         //std::cout << "开始初始化协程\n";
 
-        DeleteThread_CoEnv.reset();
+        DeleteThread_CoEnv.reset(); // 原因是DeleteThread_CoEnv初始值赋的是Co_Rountinue_Env
+                                    // 不加会因为reset中Delete两次而double free，一次是reset时，一次是线程结束时
         CurrentThread_CoEnv = new Co_Rountinue_Env();
         DeleteThread_CoEnv.reset(CurrentThread_CoEnv);
         Co_Rountinue_Env* Temp = CurrentThread_CoEnv;
@@ -461,10 +472,11 @@ namespace RocketCo {
         Temp->Epoll_->ActiveLink  = new CoEventItemIink();
     }
 
-    // 用在线程结束的时候 就算搞到析构函数里面对于env的delete还是得放到外面，治标不治本。如此看来智能指针是最优的
+    // 用在线程结束的时候，就算搞到析构函数里面对于env的delete还是得放到外面，治标不治本。如此看来智能指针是最优的
     void Free_Co_Rountinue_Env(Co_Rountinue_Env* env){
-        // std::cout << "每线程变量删除"\n";
-        if(env == nullptr) return;  // 对应与线程中没有调用过协程的情况
+        // std::cout << "每线程变量删除\n";
+        if(env == nullptr) return;  // 对应于线程中没有调用过协程的情况
+        FreeCo_Entity(env->Co_CallBack[0]); // 这很重要，第一遍忘了，导致了内存泄露，线程的主协程也需要删除
         delete env->Epoll_->epoll_t;
         delete env->Epoll_->TimeoutLink;
         delete env->Epoll_->ActiveLink;
@@ -478,6 +490,7 @@ namespace RocketCo {
         Co_Stack_Member* stackMember = occupy->Csm; // 获取当前协程的栈
         //int UsedLength = std::distance(occupy->ESP, stackMember->stack_bp); // 求出当前栈上的有效栈空间
         int UsedLength = stackMember->stack_bp - occupy->ESP;
+        // 在拷贝完以后总会切换回来回来
         if(occupy->Used_Stack){
             delete [] occupy->Used_Stack;
             occupy->Used_Stack = nullptr;
@@ -556,6 +569,9 @@ namespace RocketCo {
         if(restore_curr && restore_prev && restore_curr != restore_prev){
             if(restore_curr->Used_Stack && restore_curr->Used_Stack_size > 0){
                 memcpy(restore_curr->ESP, restore_curr->Used_Stack, restore_curr->Used_Stack_size);
+                // 用完就删,协程可能切换也可能不切换,所以在最后还得判断
+                // restore_curr->Used_Stack是否为空从而进行delete,不如每次用完直接删,反正也用不上
+                delete [] restore_curr->Used_Stack;
             }
         }
     }
@@ -891,6 +907,7 @@ namespace RocketCo {
         RemoveFromWheel<ConditionVariableItem, ConditionVariableLink>(Item);
 
         delete Item;
+        return 0;
     }
 
     ConditionVariableItem* PopFromLink(ConditionVariableLink* CV){

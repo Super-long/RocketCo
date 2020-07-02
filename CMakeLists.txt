@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 enable_language(C ASM)
 link_libraries(-ldl) # 防止dlsym出现未定义的引用
 link_libraries(-pthread)
-SET(CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS} -g -fno-strict-aliasing -O2 -Wall -export-dynamic -Wall -pipe  -D_GNU_SOURCE -D_REENTRANT -fPIC -Wno-deprecated -m64)
+SET(CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS} -g -fno-strict-aliasing -O2 -std=gnu9x -Wall -export-dynamic -pipe  -D_GNU_SOURCE -D_REENTRANT -fPIC -Wno-deprecated -m64)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
 
