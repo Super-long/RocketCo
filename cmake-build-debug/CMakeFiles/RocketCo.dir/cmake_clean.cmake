@@ -4,7 +4,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/RocketCo.dir/coctx_swap.S.o"
   "CMakeFiles/RocketCo.dir/coswap.cpp.o"
   "CMakeFiles/RocketCo.dir/example/SimpleRoutineExample.cpp.o"
-  "CMakeFiles/RocketCo.dir/example/test.cpp.o"
   "CMakeFiles/RocketCo.dir/hook.cpp.o"
   "RocketCo"
   "RocketCo.pdb"

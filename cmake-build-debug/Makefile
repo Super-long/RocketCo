@@ -240,33 +240,6 @@ example/SimpleRoutineExample.cpp.s:
 	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/SimpleRoutineExample.cpp.s
 .PHONY : example/SimpleRoutineExample.cpp.s
 
-example/test.o: example/test.cpp.o
-
-.PHONY : example/test.o
-
-# target to build an object file
-example/test.cpp.o:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/test.cpp.o
-.PHONY : example/test.cpp.o
-
-example/test.i: example/test.cpp.i
-
-.PHONY : example/test.i
-
-# target to preprocess a source file
-example/test.cpp.i:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/test.cpp.i
-.PHONY : example/test.cpp.i
-
-example/test.s: example/test.cpp.s
-
-.PHONY : example/test.s
-
-# target to generate assembly for a file
-example/test.cpp.s:
-	$(MAKE) -f CMakeFiles/RocketCo.dir/build.make CMakeFiles/RocketCo.dir/example/test.cpp.s
-.PHONY : example/test.cpp.s
-
 hook.o: hook.cpp.o
 
 .PHONY : hook.o
@@ -316,9 +289,6 @@ help:
 	@echo "... example/SimpleRoutineExample.o"
 	@echo "... example/SimpleRoutineExample.i"
 	@echo "... example/SimpleRoutineExample.s"
-	@echo "... example/test.o"
-	@echo "... example/test.i"
-	@echo "... example/test.s"
 	@echo "... hook.o"
 	@echo "... hook.i"
 	@echo "... hook.s"

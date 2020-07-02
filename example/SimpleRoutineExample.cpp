@@ -21,13 +21,10 @@ void* Running(void* para){
     while(true){
         printf("This is No.%d thread. No.%d Routine.\n", arg->Thread_id, arg->Rounine_id);
         // only sleep.
-        poll(nullptr, 0, 500);
+        poll(nullptr, 0, 1000);
+        break; // TODO
     }
     return nullptr;
-}
-
-int loop(void*){
-    return 0;
 }
 
 void* Routine(void* para){
@@ -40,18 +37,26 @@ void* Routine(void* para){
         RocketCo::Co_Create(&args[i].Co, nullptr, Running, args + i);
         RocketCo::Co_resume(args[i].Co);
     }
-    RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(), loop, 0);
+    RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(), [](void*){return -1;}, 0);
+
+    for (int j = 0; j < 10; ++j) {
+        RocketCo::FreeCo_Entity(args[j].Co);
+    }
+    return 0;
 }
 
 int main(){
     pthread_t tid[5];
     int args[5];
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 2; i++){
         args[i] = i;
         pthread_create( tid + i, NULL, Routine,args + i);
     }
-    for(;;){
-        sleep(1);
+    for(size_t i = 0; i < 2; i++){
+        pthread_join(tid[i], nullptr);
     }
+    //for(;;){
+        sleep(1);
+    //}
     return 0;
 }

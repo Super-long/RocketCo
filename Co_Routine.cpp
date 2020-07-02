@@ -26,6 +26,7 @@ namespace RocketCo {
 
     Co_Rountinue_Env* get_thisThread_Env();
     void init_thisThread_Env();
+    void Free_Co_Rountinue_Env(Co_Rountinue_Env* env);
 
     extern "C"
     {
@@ -34,8 +35,13 @@ namespace RocketCo {
 
     // -------------------  全局变量
 
+
+
     // 使用__thread效率上优于thread_local
-    static __thread Co_Rountinue_Env* CurrentThread_CoEnv = nullptr;
+    __thread Co_Rountinue_Env* CurrentThread_CoEnv = nullptr;
+    // 不支持thread_local
+    thread_local std::unique_ptr<Co_Rountinue_Env, decltype(Free_Co_Rountinue_Env)*>
+                DeleteThread_CoEnv(CurrentThread_CoEnv, Free_Co_Rountinue_Env);
 
     // -------------------
 
@@ -330,6 +336,19 @@ namespace RocketCo {
         Co_Entity* prev_Co;     // 调用栈中的上一个协程
     };
 
+    void FreeCo_Entity(Co_Entity* Co){
+        delete Co;
+        return;
+    }
+
+    // 传入一个指针数组
+    void Free_Co_Entity_Array(Co_Entity* Co[], int len){
+        for (int i = 0; i < len; ++i) {
+            delete Co[i];
+        }
+        return;
+    }
+
     // 给协程实体分配内存并初始化
     // 线程局部的属性;协程属性;协程执行函数;函数参数;
     // 可能会抛出错误 std:bad_alloc
@@ -417,7 +436,10 @@ namespace RocketCo {
     // 一个线程只能被调用一次，但不是只能被调用一次，所以没有写成单例
     void init_thisThread_Env(){
         //std::cout << "开始初始化协程\n";
+
+        DeleteThread_CoEnv.reset();
         CurrentThread_CoEnv = new Co_Rountinue_Env();
+        DeleteThread_CoEnv.reset(CurrentThread_CoEnv);
         Co_Rountinue_Env* Temp = CurrentThread_CoEnv;
 
         Temp->Co_ESP = 0;   // "调用栈"顶指针
@@ -437,6 +459,18 @@ namespace RocketCo {
         Temp->Epoll_->epoll_t = new Epoll();
         Temp->Epoll_->TimeoutLink = new CoEventItemIink();
         Temp->Epoll_->ActiveLink  = new CoEventItemIink();
+    }
+
+    // 用在线程结束的时候 就算搞到析构函数里面对于env的delete还是得放到外面，治标不治本。如此看来智能指针是最优的
+    void Free_Co_Rountinue_Env(Co_Rountinue_Env* env){
+        // std::cout << "每线程变量删除"\n";
+        if(env == nullptr) return;  // 对应与线程中没有调用过协程的情况
+        delete env->Epoll_->epoll_t;
+        delete env->Epoll_->TimeoutLink;
+        delete env->Epoll_->ActiveLink;
+        delete env->Epoll_;
+        delete env;
+        return;
     }
 
     // 保存这个协程实体的栈空间

@@ -152,6 +152,7 @@ int main(int argc, char* argv[]){
     }
 
     RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(), 0, 0);
+    send(5, nullptr, 5, MSG_DONTROUTE);
     return 0;
 }
 // ./RocketCo 127.0.0.1 12365 127.0.0.1 12222 192.168.1.1 1000 192.168.1.2 1111
