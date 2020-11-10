@@ -7,6 +7,7 @@
 
 #include "../Base/nocopyable.h"
 #include "epoll_event.h"
+#include <stdexcept>
 
 #include <memory>
 

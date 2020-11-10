@@ -9,6 +9,7 @@
 #include <poll.h>
 #include <vector>
 #include "Co_Entity.h" // 协程的实体
+#include <string>
 
 namespace RocketCo{
 
@@ -71,7 +72,7 @@ namespace RocketCo{
 
 }
 // --------------------------- 特殊的函数
-void InitEnv(std::vector<std::pair<std::string,std::string>>* para);
+void InitEnv(std::vector<std::pair<std::string,std::string> >* para);
 void co_enable_hook_sys();
 void DeleteFd2Attributes();
 
