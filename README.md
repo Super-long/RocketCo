@@ -22,7 +22,7 @@ Golang版本|1.15.4 |
 |Goroutinue|254ns|462ns| 393ns|542ns
 |libco静态栈|20039ns| 226ns| 13349ns| 334ns|
 |libco共享栈|18675ns|228ns| 14536ns|226ns|
-
+|libgo 2020版本|27760ns|133ns|18217ns|112ns|
 
 
 
@@ -52,7 +52,7 @@ go run Goroutinue.go  1000 1000
 
 libco版本为cc46d60e6fa4e69c33a7280b1a94532a87bd787e;
 
-测试代码位于/PerformanceTest/libco.go，这个代码并不能直接运行，需要把libco拉到本地以后放到libco中执行，
+测试代码位于/PerformanceTest/libco.cpp，这个代码并不能直接运行，需要把libco拉到本地以后放到libco中执行，
 
 运行测试代码需要执行以下命令：
 ```
@@ -75,3 +75,16 @@ g++ -O2 -g -DNDEBUG -ggdb -Wall -Werror -fPIC libco.cpp build/libcolib.a -o Test
 ```
 第一个参数为协程数;第二个每个协程的切换次数;第三个参数为栈的大小;第四个栈为打开共享栈选项，共享栈数量为协程数。
 
+### libgo
+测试代码位于/PerformanceTest/libgo.cpp，这个代码并不能直接运行，需要把libgo拉到本地以后[编译安装](https://gitee.com/yyzybb537/libgo)以后执行以下指令：
+```
+mkdir build && cd build;
+cmake ..;
+make;
+cd ..;
+
+g++ -O2 -g -DNDEBUG -ggdb -Wall -Werror -fPIC libgo.cpp -o libgo  -Ilibgo -Ilibgo/libgo -Ilibgo/libgo/linux -Lbuild -llibgo -lrt -lpthread -ldl;
+
+./libgo 1000 1000 128;
+./libgo 5000 100 128;
+```
