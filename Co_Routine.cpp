@@ -39,6 +39,7 @@ namespace RocketCo {
 
     // 使用__thread效率上优于thread_local
     __thread Co_Rountinue_Env* CurrentThread_CoEnv = nullptr;
+    
     // 不支持thread_local
     thread_local std::unique_ptr<Co_Rountinue_Env, decltype(Free_Co_Rountinue_Env)*>
                 DeleteThread_CoEnv(CurrentThread_CoEnv, Free_Co_Rountinue_Env);
@@ -253,6 +254,7 @@ namespace RocketCo {
                 Start = Now;
                 Index = 0;
             }
+            
             if(Now < Start){ // 只可能等于或者大于
                 std::cerr << "ERROR : TimeWheel.AddTimeOut Insertion time is less than initial time.\n";
                 return __LINE__;
@@ -558,6 +560,7 @@ namespace RocketCo {
 //        }
 //        std::cout << "---------------------------------------\n";
         // ------------
+        // 保存current的环境，并且把pending的值n放到寄存器中
         coctx_swap(&(current->cst), &(pending->cst));
         // 到了pending协程了,pending协程执行完才会回到这里
 
@@ -567,7 +570,7 @@ namespace RocketCo {
         Co_Entity* restore_prev = cur_env->prev_Co;
 
         if(restore_curr && restore_prev && restore_curr != restore_prev){
-            if(restore_curr->Used_Stack && restore_curr->Used_Stack_size > 0){
+            if(restore_curr->Used_Stack && restore_curr->Used_Stack_size > 0){  // 可能tcurrrni在其他地方经历了栈拷贝
                 memcpy(restore_curr->ESP, restore_curr->Used_Stack, restore_curr->Used_Stack_size);
                 // 用完就删,协程可能切换也可能不切换,所以在最后还得判断
                 // restore_curr->Used_Stack是否为空从而进行delete,不如每次用完直接删,反正也用不上
@@ -584,7 +587,7 @@ namespace RocketCo {
         Co_Entity* pending = env->Co_CallBack[env->Co_ESP - 2];
         Co_Entity* current = env->Co_CallBack[env->Co_ESP - 1];
 
-        // 既然当前协程已经执行完毕或者让出CPU,那么调用栈当然要减法1喽
+        // 既然当前协程已经执行完毕或者让出CPU,那么调用栈当然要减1喽
         env->Co_ESP -= 1;
 
         // 交换两个协程的上下文,并对其中状态和栈做一些操作.
@@ -693,6 +696,7 @@ namespace RocketCo {
     // timeout 默认单位为毫秒
     constexpr const int ShortItemOptimization = 2;
     int Co_poll_inner(Co_Epoll* Epoll_, struct pollfd fds[], nfds_t nfds, int timeout, Poll_fun pollfunc){
+        
         int epfd = Epoll_->epoll_t->fd();
         Co_Entity* self = GetCurrentCoEntity(); // 获取当前运行的协程
 
@@ -795,7 +799,7 @@ namespace RocketCo {
     void EventLoop(Co_Epoll* Epoll_, const Co_EventLoopFun& fun, void* args){
 
         // epoll的事件结果集
-        EpollEvent_Result Event_Reault(DefaultEpollEventSize());
+        EpollEvent_Result Event_Reault(DefaultEpollEventSize()); 
 
         while(true){
             Epoll_->epoll_t->Epoll_Wait(Event_Reault, 1);
@@ -806,7 +810,7 @@ namespace RocketCo {
             for(int i = 0; i < Event_Reault.size(); ++i) {
                 CoEventItem* item = (CoEventItem*)Event_Reault[i].Return_Pointer()->data.ptr;
                 if(item->CoPrepare){
-                    // 从时间轮中去除，并更新标记位
+                    // 从时间轮中去除，并更新标记位；一个事件集合中触发一个i以后就不再超时了。
                     item->CoPrepare(item, Event_Reault[i].Return_Pointer(), active);
                 } else {
                     AddTail(active, item);
@@ -927,7 +931,7 @@ namespace RocketCo {
         RemoveFromWheel<CoEventItem,CoEventItemIink>(&(Head->Item));
 
         // 加到active队列中,在下一轮epoll_wait中处理.调用process回调,回到ConditionVariableWait中
-        AddTail(get_thisThread_Env()->Epoll_->ActiveLink, &(Head->Item));
+        AddTail(get_thisThread_Env()->Epoll_->ActiveLink, &(Head->Item)); 
 
         return 0; // 正常返回,返回值为0
     }

@@ -112,7 +112,7 @@ namespace RocketCo {
     #elif defined(__x86_64__)
     int co_swap_make(co_swap_t* cst, co_runningFunction pfn, const void* s, const void* s1) {
         // ss_sp指新的协程执行的栈空间
-        char* sp = cst->ss_sp + cst->ss_size - sizeof(void*);
+        char* sp = cst->ss_sp + cst->ss_size - sizeof(void*); 
         sp = (char*)((unsigned long)sp & -16LL);
 
         memset(cst->regs, 0, sizeof(cst->regs));

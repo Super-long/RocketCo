@@ -62,14 +62,16 @@ int main(){
     RocketCo::Co_Create(&consumer, nullptr, Consumer, env);
     cout << "consumer creat sucess. Start resume routine.\n";
     RocketCo::Co_resume(consumer);
-    cout << "consumer resume sucess.\n";
+    cout << "consumer resume sucess.\n";  
 
     RocketCo::Co_Entity* product;
     RocketCo::Co_Create(&product, nullptr, Product, env);
     RocketCo::Co_resume(product);
 
     RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(), nullptr, nullptr);
-    // 没在Eventloop中设置回调，永远不会跑到Delete这里
+    // 没在Eventloop中设置回调，永远不会跑到Delete这里。
+    
+    // 这些可以放到一个unique_ptr中，库不负责这些资源的释放。
     RocketCo::FreeCo_Entity(consumer);
     RocketCo::FreeCo_Entity(product);
     RocketCo::ConditionVariableFree(env->cond);
