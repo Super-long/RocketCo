@@ -10,6 +10,8 @@
 #include "../Co_Routine.h"
 
 #include <gperftools/profiler.h>
+// pprof ./RocketCo test.prof --text 生成text
+// pprof ./RocketCo test.prof --pdf > test.pdf
 
 #include <chrono>
 #define CALC_CLOCK_T std::chrono::system_clock::time_point
@@ -124,6 +126,7 @@ int main(int argc, char *argv[]) {
     switch_count = 1000;
     stack_size = 128 * 1024;
 
+    ProfilerStart("test.prof");//开启性能分析
 
     RocketCo::Co_Attribute libco_attr;
     libco_attr.stack_size = static_cast<int>(stack_size);
@@ -143,7 +146,7 @@ int main(int argc, char *argv[]) {
     time_t       begin_time  = time(NULL);
     CALC_CLOCK_T begin_clock = CALC_CLOCK_NOW();
 
-    ProfilerStart("test.prof");//开启性能分析
+    //ProfilerStart("test.prof");//开启性能分析
     // 降低局部性，且最大支持2^16个协程
     for (size_t i = 0; i < 64; ++ i) {
         for (size_t j = 0; i + j * 64 < co_arr.size(); ++ j) {
