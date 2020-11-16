@@ -74,6 +74,5 @@ namespace RocketCo{
 // --------------------------- 特殊的函数
 void InitEnv(std::vector<std::pair<std::string,std::string> >* para);
 void co_enable_hook_sys();
-void DeleteFd2Attributes();
 
 #endif //ROCKETCO_CO_ROUTINE_H

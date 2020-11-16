@@ -7,8 +7,6 @@
 #include <bits/stdc++.h>
 #include "../Co_Routine.h" 
 
-#include <mcheck.h>
-
 // 一个简单的调用过程
 
 struct task_t{
@@ -41,7 +39,6 @@ void* Routine(void* para){
     }
     RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(), [](void*){return -1;}, 0);
 
-    // 切记每次使用完以后自行删除,不然就会泄露
     for (int j = 0; j < 10; ++j) {
         RocketCo::FreeCo_Entity(args[j].Co);
     }
@@ -49,8 +46,6 @@ void* Routine(void* para){
 }
 
 int main(){
-    setenv("MALLOC_TRACE", "mtrace.out", 1);
-    mtrace();
     pthread_t tid[5];
     int args[5];
     for(int i = 0; i < 2; i++){

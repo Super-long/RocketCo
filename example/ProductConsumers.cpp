@@ -69,11 +69,14 @@ int main(){
     RocketCo::Co_resume(product);
 
     RocketCo::EventLoop(RocketCo::GetCurrentCoEpoll(), nullptr, nullptr);
+<<<<<<< HEAD
     // 没在Eventloop中设置回调，永远不会跑到Delete这里。
     
     // 这些可以放到一个unique_ptr中，库不负责这些资源的释放。
     RocketCo::FreeCo_Entity(consumer);
     RocketCo::FreeCo_Entity(product);
     RocketCo::ConditionVariableFree(env->cond);
+=======
+>>>>>>> parent of 6cf6e6e (leak)
     return 0;
 }

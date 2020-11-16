@@ -90,20 +90,10 @@
         std::int64_t wirte_timeout; // 写超时时间
     };
 
-    void DeleteFdAttributes(FdAttributes* para);
-
     // cat /proc/PID/limists | grep “Max open files”
     static constexpr const int AttributesLength = 8196;
     static FdAttributes* Fd2Attributes[AttributesLength];
 
-    void DeleteFd2Attributes(){ // 一般来说用不上这个，因为在close中已经关闭了
-        for (int i = 0; i < AttributesLength; ++i) {
-            if(Fd2Attributes[i] != nullptr){
-                DeleteFdAttributes(Fd2Attributes[i]);
-            }
-        }
-        return;
-    }
 
     // ------------------------------------
     // 对于hook函数的封装
@@ -190,10 +180,6 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
 
         Fd2Attributes[fd] = Temp;
         return Temp;
-    }
-
-    void DeleteFdAttributes(FdAttributes* para){
-        delete para;
     }
 
    int socket(int domain, int type, int protocol){
