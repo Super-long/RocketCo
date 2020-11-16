@@ -14,6 +14,8 @@
 #include <functional>
 #include <iostream> // cerr
 
+#include <gperftools/tcmalloc.h>  
+
 namespace RocketCo {
     // -------------------  一些宏和别名
 
@@ -481,12 +483,15 @@ namespace RocketCo {
         //int UsedLength = std::distance(occupy->ESP, stackMember->stack_bp); // 求出当前栈上的有效栈空间
         int UsedLength = stackMember->stack_bp - occupy->ESP;
         if(occupy->Used_Stack){
-            delete [] occupy->Used_Stack;
+            //delete [] occupy->Used_Stack;
+            tc_free(occupy->Used_Stack);
+
             occupy->Used_Stack = nullptr;
         }
 
-        // TODO 加入动态内存池
-        occupy->Used_Stack = new char[UsedLength];
+        //occupy->Used_Stack = new char[UsedLength];
+        occupy->Used_Stack = static_cast<char*>(tc_malloc(UsedLength));
+        
         occupy->Used_Stack_size = UsedLength;
 
         // |     Ebp      |------------------|

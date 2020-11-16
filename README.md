@@ -13,17 +13,17 @@ Cmake版本|3.18.4|
 GCC版本|10.2.0|
 Golang版本|1.15.4 |
 
-
 所有测试数据均为5次的平均值：
 
 | 不同的协程实现| 协程数：1000 创建开销 | 协程数1000 切换开销| 协程数：5000 创建开销 | 协程数5000 切换开销|  
 :-----:|:-----:|:-----:|:-----:|:-----:|
-|C++20 Coroutinue - GCC|815ns|251ns|2694ns|146ns
-|Goroutinue|254ns|462ns| 393ns|542ns
-|libco静态栈|20039ns| 226ns| 13349ns| 334ns|
-|libco共享栈|18675ns|228ns| 14536ns|226ns|
-|libgo 2020版本|27760ns|133ns|18217ns|112ns|
-
+|C++20 Coroutinue - GCC|2649ns|173ns|2694ns|134ns|
+|Goroutinue|298ns|462ns| 246ns|542ns|
+|libgo 2020版本|20904ns|90ns|10062ns|104ns|
+|libco静态栈|7714ns| 223ns| 1385ns| 278ns|
+|libco共享栈|15554ns|169ns| 8377ns|199ns|
+|RocketCo静态栈|5317ns|242ns|1088ns|313ns|
+|RocketCo共享栈|7873ns|193ns|2828ns|187ns|
 
 
 ### C++20Coroutinue

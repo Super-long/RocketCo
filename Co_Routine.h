@@ -66,7 +66,7 @@ namespace RocketCo{
     ConditionVariableLink* ConditionVariableInit();
     void ConditionVariableFree(ConditionVariableLink* CV);
 
-    int ConditionVariableWait(ConditionVariableLink* CV, int TimeOut);
+    int ConditionVariableWait(ConditionVariableLink* CV, int TimeOut); 
     int ConditionVariableSignal(ConditionVariableLink* CV);
     int ConditionVariableBroadcast(ConditionVariableLink* CV);
 

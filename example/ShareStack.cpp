@@ -19,7 +19,7 @@ void* RoutineFunc(void* args){
 
 int main(){
     RocketCo::Co_ShareStack* ShareStack = new RocketCo::Co_ShareStack(1, 1024*128);
-    RocketCo::Co_Attribute env;
+    RocketCo::Co_Attribute env; 
 
     env.stack_size = 0;
     env.shareStack = ShareStack;
