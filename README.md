@@ -11,7 +11,7 @@ RocketCo是基于x86/x86_64架构，运行于Linux操作系统的一个非对称
 6. 采用内存池优化内存分配。
 
 # 2.使用
-编译RocketCou需要引入[gperftools](https://github.com/gperftools/gperftools)工具。
+编译RocketCo需要引入[gperftools](https://github.com/gperftools/gperftools)工具。
 ```
 ./autogen.sh
 ./configure
@@ -19,11 +19,11 @@ make -j8
 sudo make install
 ldconfig 刷新动态库文件
 ```
+arch玩家直接pacman即可安装成功。
+
 这里安装完成以后会出现一个问题，就是gperftools产生的动态库在/usr/local/lib中，而这并不在系统动态库的查找路线。一种可行的方法是修改/etc/ld.so.conf，在文件尾部加入/usr/local/lib。
 
 最好先写个测试文件看看是否安装成功。
-
-arch玩家直接pacman即可安装成功。
 
 
 gperftools安装完成以后进行以下步骤即可执行测试样例。
