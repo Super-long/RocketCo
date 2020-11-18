@@ -33,10 +33,34 @@ int main(){
     } */
 
     // 测试ChunkAlloc中的使用内存碎片。先请求3KB，再请求2.5KB，最后请求11KB,10KB就会放到a空闲链表中，此时去请求不必再分配20个
-    auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
+/*     auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
+    alloctor.RocketCoFree(ptr1, 3*1024);
     auto ptr2 = alloctor.RocketCoMalloc(2 * 1024 + 512);
     auto ptr3 = alloctor.RocketCoMalloc(11 * 1024);
-    auto ptr4 = alloctor.RocketCoMalloc(10 * 1024);
+    auto ptr4 = alloctor.RocketCoMalloc(10 * 1024); */
 
+    // 测试free先请求3KB，然后free3KB，此时会合并一个6KB的block
+/*     auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
+    alloctor.RocketCoFree(ptr1, 3*1024);    // 此时应该6KB链表上有一个值
+    auto ptr2 = alloctor.RocketCoMalloc(6 * 1024);
+    alloctor.RocketCoFree(ptr2, 6*1024); */
+
+    auto start = std::chrono::high_resolution_clock::now(); 
+
+    for (size_t i = 0; i < 200; i++){
+        auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
+        //alloctor.RocketCoFree(ptr1, 3*1024); 
+
+        //auto ptr2 = malloc(3 * 1024);
+        //free(ptr2);
+    }
+    
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::ratio<1,1000>> time_span 
+    = std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1,1000>>>(end - start);
+
+    std::cout << time_span.count() << std::endl;
     return 0;
 }

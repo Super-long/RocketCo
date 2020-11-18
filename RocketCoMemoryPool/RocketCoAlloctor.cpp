@@ -15,6 +15,10 @@ namespace RocketCo{
         for (size_t i = 0; i < 96; i++){
             free_list[i] = nullptr;
         }
+
+        // 这里插入一个{0,0}是因为在RocketCoFree中的匹配算法需要这样，不然在pointer_effective_interval中匹配的值恰好为最后一个时会有问题;
+        // 当然把pointer_effective_interval调整为负数也ok;
+        pointer_effective_interval.insert(std::make_pair(LONG_MAX,LONG_MAX));
     }
 
     size_t RocketCoAlloctor::Index2SlotLength(size_t index){
@@ -85,9 +89,10 @@ namespace RocketCo{
         } 
     }  
 
-    /*
-     * @notes: BeAssigned的作用就是给标记数据块的最后一个字节，被标记的则视为已经被分配。MarkAssigned则为检查某个数据块是否被标记。
-     * */
+/*    
+    // 错误的想法！
+    // @notes: BeAssigned的作用就是给标记数据块的最后一个字节，被标记的则视为已经被分配。MarkAssigned则为检查某个数据块是否被标记。
+
     bool RocketCoAlloctor::BeAssigned(char* ptr, size_t length){
         return *(ptr + (length - 1)) & 1;
     }
@@ -95,7 +100,7 @@ namespace RocketCo{
     
     void RocketCoAlloctor::MarkAssigned(char* ptr, size_t length){
         *(ptr + (length-1)) = CHAR_MAX;
-    }
+    } */
 
 
     char* RocketCoAlloctor::RocketCoMalloc(size_t index){
@@ -111,8 +116,8 @@ namespace RocketCo{
 
         size_t DataIndex = FindFreeListIndex(CompleteData);
         result = free_list[DataIndex];
+
         if(result == 0){
-            // 出现的概率比较低，所以是否需要在上面搞一个临时变量呢
             char* res = Refill(CompleteData);
             return res;
         }
@@ -123,7 +128,13 @@ namespace RocketCo{
             free_list[DataIndex]->prev = nullptr; // 头指针指向nullptr
         }
 
-        return reinterpret_cast<char*>(result);
+        char* pointer = reinterpret_cast<char*>(result);
+        
+        // 标记两个区间，这两个点一定是有效的;
+        mark_allocated_block[pointer] = CompleteData;
+        mark_allocated_block[pointer + (CompleteData - 1)] = CompleteData;
+
+        return pointer;
     }
 
     /*
@@ -132,19 +143,143 @@ namespace RocketCo{
      * 还有一点，就是这个分配器其实是专属此项目的栈拷贝的，所以在分配以后会立即使用，这也是正确合并的前提。
      */
     void RocketCoAlloctor::RocketCoFree(char* ptr, size_t len){
-        
+        // 用户使用分配时的大小就可以了
+        len = DataAlignment(len);
+
+        //cout << "ptr : " << ptr - (char*)0 << endl;
         auto item = pointer_effective_interval.lower_bound(std::make_pair(ptr - (char*)0, __LONG_MAX__));
         if(item == pointer_effective_interval.end()){
-            // 可能释放的是未分配的指针，此时为ub。其实可以维护一个哈希set，就可以知道这个指针是否是我们分配的了
+            // 可能释放的是未分配的指针，此时为ub。其实可以维护一个哈希set，就可以知道这个指针是否是我们分配的了;
+            // cout << "error in RocketCoFree, out of free range\n";
             free(static_cast<void*>(ptr));
             return;
         } else if (item != pointer_effective_interval.begin()){ // 等于begin的话不需要操作
             --item;
         }
-        // 此时得到一个ptr的所属空间，查看相邻的链表是否存在free_list中。
-        // 因为可能相邻的数据块已经分配给别人，那么此时如何判断是否进行合并呢？我的选择是在FreeListNode结构体偏移以后100字节内不存在1则认为此结构体未被分配。显然是有风险的。
 
+        //cout << "interval: " << item->second - item->first << endl;
+        
+        // 此时已经没有什么用了
+        mark_allocated_block.erase(ptr);
+        mark_allocated_block.erase(ptr + (len - 1));
+
+        // 此时得到一个ptr的合并空间区间，查看相邻的链表是否存在free_list中。
+        // 因为可能相邻的数据块已经分配给别人，那么此时如何判断是否进行合并呢？我的选择是维护一个哈希表，以此保证绝对的安全。
+        
+        // 目前只支持合并两个块，因为太懒了;
+        bool flag = false;
+
+        // 首先合并低地址
+        if(ptr - (char*)0 != item->first) {
+            if(mark_allocated_block.find(ptr - 1) == mark_allocated_block.end()) { // 未被分配，直接在free_list中查找即可
+                // 显然block后面的结构体只需要长度; 
+                FreeListNode* node = reinterpret_cast<FreeListNode*>(ptr - sizeof(FreeListNode));
+                flag = MergeData(ptr - node->item_length, node->item_length, ptr, len, LeftNeedModified);
+            } // 已经被分配
+        }// else{} // 左区间不执行合并，什么也不做
+        
+        // 再合并高地址
+        if(!flag && ptr + (len - 1) - (char*)0 != item->second){ // 显然不可能大于item->second
+            // 上面判断了ptr的右区间不等于全部数据的右区间，那么它们之间一定有空隙
+            if(mark_allocated_block.find(ptr + len) == mark_allocated_block.end()){ // 且后面block没有被分配
+                // 下一位的起始地址上就是FreeListNode;
+                FreeListNode* node = reinterpret_cast<FreeListNode*>(ptr + len);
+                flag = MergeData(ptr, len, ptr + len, node->item_length, RightNeedModified);
+            }
+        }
+
+        // 前后都无法合并，就把自己放到free_list中
+        if(!flag){
+            SetBlock2FreeList(reinterpret_cast<FreeListNode*>(ptr), len);
+        }
     }
+
+    bool RocketCoAlloctor::IsMerge(size_t len){
+        if(len < 0 && len > ThirdSlot){
+            return false;
+        } else if (len < FirstSlot){
+            return !(len&511);
+        } else if (len < SecondSlot){
+            return !(len&1023);
+        } else if (len < ThirdSlot) {
+            return !(len&2047);
+        } else {
+            // 不可能出现的情况
+            return false;
+        }
+    } 
+
+    /*
+     * @notes: 把两个block合并以后放到free_list中;值得注意的是可能合并这两个无法合并放到free_list的一项里面
+     * @param: 当flag为mergeright的时候必须把;需要保证lhs地址低于rhs
+     */
+    bool RocketCoAlloctor::MergeData(char* lhs, size_t lenA, char* rhs, size_t lenB, LeftOrRightMod flag){
+        size_t total_len = lenA + lenB;
+        // step1：验证合并后是否可以放到一个链表中
+        if(!IsMerge(total_len)){
+            return false;
+        }
+
+        // step2: 把其中一个要执行合并的数据块从原链表中去除
+        if(flag == LeftNeedModified){
+            MoveToFreeList(reinterpret_cast<FreeListNode*>(lhs), lenA);
+        } else if (flag == RightNeedModified){
+            MoveToFreeList(reinterpret_cast<FreeListNode*>(rhs), lenB);
+        } else {
+            // 不可能的情况
+            std::cerr << "Error in MergeData.\n";
+            exit(1);
+        }
+
+        // step3：放置到free_list中
+        SetBlock2FreeList(reinterpret_cast<FreeListNode*>(lhs), total_len);
+
+        return true;
+    }
+
+    /*
+     * @notes: 把ptr从所属的free_list中移除;
+     */
+    void RocketCoAlloctor::MoveToFreeList(FreeListNode* ptr, size_t len){
+        size_t index = FindFreeListIndex(len);
+        //cout << "index : " << index << endl;
+        if(ptr->prev == nullptr){ // 本身是头节点
+            free_list[index] = ptr->next;
+            if(free_list[index] != nullptr){
+                // 要使用prev为空判断头节点
+                free_list[index]->prev = nullptr;
+            }
+        } else {
+            ptr->prev->next = ptr->next;
+            ptr->next->prev = ptr->prev;
+        }
+    }
+
+    /*
+     * @notes: 只有len，不需要对齐;头插;
+     */
+    void RocketCoAlloctor::SetBlock2FreeList(FreeListNode* ptr, size_t len){
+        size_t index = FindFreeListIndex(len);
+
+        //cout << "SetBlock2FreeList : " << index << endl;
+
+        FreeListNode* my_free_list = free_list[index];
+        ptr->prev = nullptr;
+        ptr->next = my_free_list;
+        if(my_free_list != nullptr){
+            my_free_list->prev = ptr;
+        }
+        free_list[index] = ptr;
+        ptr->slot = index;
+        ptr->item_length = len;
+
+        MarkBlock(ptr, len);
+    }
+
+    void RocketCoAlloctor::MarkBlock(FreeListNode* ptr, size_t len){
+        FreeListNode* node = reinterpret_cast<FreeListNode*>(ptr + (len - sizeof(FreeListNode)));
+        node->item_length = len;
+    }     
 
     /*
      * @notes: 这个函数可能会抛错，注意
@@ -166,7 +301,7 @@ namespace RocketCo{
             return chunk;
         }
 
-        cout << "number : " << number << endl;
+        //cout << "number : " << number << endl;
 
         size_t refill_index = FindFreeListIndex(length);
 
@@ -175,18 +310,18 @@ namespace RocketCo{
         result = chunk;  // 需要返回给用户
 
         // 初始化链表起始点，并初始化next_obj
-        size_t slot_length = Index2SlotLength(refill_index);    // 这是所属槽的数据大小，可能为512,1KB，2KB
-        //cout << "slot_length: " << slot_length << endl;
-        free_list[refill_index] = next_obj = (FreeListNode*)(chunk + slot_length);  // 把链表赋值给free_list
 
-        next_obj->item_length = slot_length;
+        free_list[refill_index] = next_obj = (FreeListNode*)(chunk + length);  // 把链表赋值给free_list
+
+        next_obj->item_length = length;
         next_obj->slot = refill_index;
         next_obj->prev = nullptr; // 链表头部prev为空
         next_obj->next = nullptr;
+        MarkBlock(next_obj, length);
         
         for (size_t i = 1; i < number - 1 ; i++){
             current_obj = next_obj;
-            next_obj = (FreeListNode*)((char*)next_obj + slot_length);
+            next_obj = (FreeListNode*)((char*)next_obj + length);
 
             current_obj->next = next_obj;
 
@@ -194,7 +329,8 @@ namespace RocketCo{
             next_obj->next = nullptr;
 
             next_obj->slot = refill_index;
-            next_obj->item_length = slot_length;
+            next_obj->item_length = length;
+            MarkBlock(next_obj, length);
         }
         
         return result;
@@ -282,6 +418,8 @@ namespace RocketCo{
 
         head->slot = head_index;
         head->item_length = remaining;
+
+        MarkBlock(head, remaining);
     }
 
 }
