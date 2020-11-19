@@ -43,17 +43,32 @@ int main(){
 /*     auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
     alloctor.RocketCoFree(ptr1, 3*1024);    // 此时应该6KB链表上有一个值
     auto ptr2 = alloctor.RocketCoMalloc(6 * 1024);
-    alloctor.RocketCoFree(ptr2, 6*1024); */
+    alloctor.RocketCoFree(ptr2, 6*1024);
+ */
+
+    for(int i = 0; i < 10; ++i){
+        cout << i << endl;
+        auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
+        alloctor.RocketCoFree(ptr1, 3*1024); 
+    }
+
+    for (size_t i = 0; i < 5; i++){
+        cout << i << endl;
+        auto ptr1 = alloctor.RocketCoMalloc(6 * 1024);
+        alloctor.RocketCoFree(ptr1, 6*1024); 
+    }
+    
 
     auto start = std::chrono::high_resolution_clock::now(); 
 
-    for (size_t i = 0; i < 200; i++){
+/*     for (size_t i = 0; i < 100000; i++){
+        //cout << i << endl;
         auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
-        //alloctor.RocketCoFree(ptr1, 3*1024); 
+        alloctor.RocketCoFree(ptr1, 3*1024); 
 
         //auto ptr2 = malloc(3 * 1024);
         //free(ptr2);
-    }
+    } */
     
 
     auto end = std::chrono::high_resolution_clock::now();

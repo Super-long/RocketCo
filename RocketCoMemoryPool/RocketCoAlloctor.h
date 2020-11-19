@@ -53,7 +53,7 @@ namespace RocketCo{
 /*             bool BeAssigned(char* ptr, size_t length);                   // 判断此数据块是否已经被分配
             void MarkAssigned(char* ptr, size_t length);                    // 给此数据块加上标记 */
             bool MergeData(char* lhs, size_t lenA, char* rhs, size_t lenB, LeftOrRightMod flag); // 用于合并两个数据块，保证传入的lhs起始地址小于lhs
-            void MarkBlock(FreeListNode* ptr, size_t len);                  // 用于标记block的后面sizeof(FreeListNode)个字节，用于与前半段合并
+            void MarkBlock(char* ptr, size_t len);                  // 用于标记block的后面sizeof(FreeListNode)个字节，用于与前半段合并
             void SetBlock2FreeList(FreeListNode* ptr, size_t len);          // 把起始地址ptr，长度为len的block放置到free_list中
             void MoveToFreeList(FreeListNode* ptr, size_t len);
 
