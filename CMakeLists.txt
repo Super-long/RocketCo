@@ -15,7 +15,7 @@ SET(CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS} -g -fno-strict-aliasing -O2 -Wall -export-d
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-builtin-read")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-builtin-write")
 
-add_executable(RocketCo  RocketCoMemoryPool/test_alloctor.cpp   #PerformanceTest/RocketCo.cpp
+add_executable(RocketCo RocketCoMemoryPool/test_alloctor.cpp #example/ProductConsumers.cpp
         hook.cpp
         coswap.h coswap.cpp coctx_swap.S
         Co_Entity.h Co_Routine.h Co_Routine.cpp

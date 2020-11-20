@@ -1,6 +1,19 @@
-//
-// Created by lizhaolong on 2020/6/8.
-//
+/**
+ * Copyright lizhaolong(https://github.com/Super-long)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Code comment are all encoded in UTF-8.*/
 
 #include "Co_Routine.h"
 #include "Co_Entity.h" // 协程的实体
@@ -702,6 +715,7 @@ namespace RocketCo {
         } else {
             poll_->WillJoinEpoll = new StPollItem[nfds];
         }
+
         bzero(poll_->WillJoinEpoll, sizeof(StPollItem) * nfds);
         poll_->ItemCo = GetCurrCo(get_thisThread_Env()); // 把此项所属的协程存起来,方便在事件完成的时候进行唤醒
         // 当事件就绪或超时时设置的回调,用于唤醒这个协程继续处理
@@ -756,6 +770,7 @@ namespace RocketCo {
         RemoveFromWheel<CoEventItem,CoEventItemIink>(poll_);
         for (int i = 0; i < nfds; ++i){
             int fd = fds[i].fd;
+            // 在请求的事件中有一个已经触发的时候把其他事件从epoll中移除
             epoll_ctl(epfd, EPOLL_CTL_DEL, fd, &poll_->WillJoinEpoll[i].Event);
             fds[i].revents = poll_->fds[i].revents;
         }
@@ -806,6 +821,7 @@ namespace RocketCo {
                     AddTail(active, item);
                 }
             }
+
             std::uint64_t Now = get_mill_time_stamp();
             // 把时间轮中的超时事件插入到timeout链表中
             Epoll_->TW.TakeOutTimeout(Now, timeout);
@@ -862,8 +878,10 @@ namespace RocketCo {
         ConditionVariableLink* Temp = nullptr;
         try {
             Temp = new ConditionVariableLink();
-        }catch (const std::bad_alloc& err){
+        } catch (const std::bad_alloc& err) {
             std::cerr << err.what() << std::endl;
+            throw;
+        } catch (const std::exception& err) {
             return nullptr;
         }
         return Temp;

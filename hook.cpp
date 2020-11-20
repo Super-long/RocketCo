@@ -1,6 +1,19 @@
-//
-// Created by lizhaolong on 2020/6/9.
-//
+/**
+ * Copyright lizhaolong(https://github.com/Super-long)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Code comment are all encoded in UTF-8.*/
 
 #include "Co_Routine.h"
 #include "Co_Entity.h"
@@ -94,6 +107,25 @@
     static constexpr const int AttributesLength = 8196;
     static FdAttributes* Fd2Attributes[AttributesLength];
 
+    // 用于释放FdAttributes，有可能后面其析构函数中会进行一些数据的保存，所以这样是必不可少的;
+    class FreeFd2Attributes{
+        public:
+            constexpr FreeFd2Attributes() = default;
+            FreeFd2Attributes(const FreeFd2Attributes&) = delete;
+            FreeFd2Attributes(FreeFd2Attributes&&) = delete;
+            FreeFd2Attributes& operator=(const FreeFd2Attributes&) = delete;
+            FreeFd2Attributes& operator=(FreeFd2Attributes&&) = delete;
+            ~FreeFd2Attributes(){
+                for (int i = 0; i <AttributesLength; ++i){
+                    if(Fd2Attributes[i] != nullptr){
+                        delete Fd2Attributes[i];
+                    }
+                }
+            }
+    };
+
+    static FreeFd2Attributes StaticFreeAttribute;
+
 
     // ------------------------------------
     // 对于hook函数的封装
@@ -135,7 +167,7 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
                 }
             }
         }
-        // 此时index为合并后的事件数
+        // 此时index为合并后的事件数 
         int Readly_size = 0;
         if(nfds == index || nfds < 2){ // 没有执行合并
             //std::cout << "进入 Co_poll_inner\n";
@@ -164,21 +196,31 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
     static inline void DeleteAttributes(int fd){
         if(fd >= -1 && fd < AttributesLength){
             if(Fd2Attributes[fd]){
-                delete Fd2Attributes[fd];
-                Fd2Attributes[fd] = nullptr;
+/*                 delete Fd2Attributes[fd];
+                Fd2Attributes[fd] = nullptr; */
+                Fd2Attributes[fd]->fdFlag = 0;
+                Fd2Attributes[fd]->domain = 0;
+                bzero(&(Fd2Attributes[fd]->addr), sizeof(struct sockaddr_in));
             }
         }
     }
 
+
     static inline FdAttributes* CreateAFdAttributes(int fd){
         if(fd < 0 && fd >= AttributesLength) return nullptr;
+        
+        FdAttributes* Temp = nullptr;
 
-        FdAttributes* Temp = new FdAttributes();
-        memset(Temp, 0, sizeof(FdAttributes));
-        Temp->read_timeout  = 1000; // 设定默认超时时间为1s
-        Temp->wirte_timeout = 1000;
+        if(Fd2Attributes[fd] != nullptr){
+            Temp = Fd2Attributes[fd];
+        } else {
+            Temp = new FdAttributes();
+            memset(Temp, 0, sizeof(FdAttributes));
+            Temp->read_timeout  = 1000; // 设定默认超时时间为1s
+            Temp->wirte_timeout = 1000;
+            Fd2Attributes[fd] = Temp;
+        }
 
-        Fd2Attributes[fd] = Temp;
         return Temp;
     }
 
@@ -210,8 +252,11 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
         if(!RocketCo::GetCurrentCoIsHook()){
             return Hook_read_t(fd, buf, nbyte);
         }
+        
         FdAttributes* Attributes = GetFdAttributesByFd(fd);
-        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){ // 证明套接字非阻塞,直接调用
+
+        // 证明套接字非阻塞,直接调用;这是用户希望的非阻塞，当然不需要加入事件循环啦
+        if(!Attributes ||  Attributes->fdFlag & O_NONBLOCK){
             return Hook_read_t(fd, buf, nbyte);
         }
 
@@ -268,7 +313,7 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout){
                 break;
             }
             case F_SETFL:   // 忽略第三个参数
-            {
+            {   // 只允许O_APPEND、O_NONBLOCK和O_ASYNC位的改变
                 int param = va_arg(arg_list,int);
                 int flag = param;
                 if(RocketCo::GetCurrentCoIsHook() && Attributes){

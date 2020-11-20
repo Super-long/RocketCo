@@ -1,6 +1,19 @@
-//
-// Created by lizhaolong on 2020/6/8.
-//
+/**
+ * Copyright lizhaolong(https://github.com/Super-long)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Code comment are all encoded in UTF-8.*/
 
 #include "coswap.h"
 
@@ -85,6 +98,10 @@ namespace RocketCo {
       // 此时sp其实就是esp指向的地方 其中ss_size感觉像是这个栈上目前剩余的空间,
 
       char* sp = ctx->ss_sp + ctx->ss_size - sizeof(coctx_param_t);
+      //------- ss_sp + ss_size
+      //|     |
+      //|     |
+      //------- ss_sp
       //ctx->ss_sp 对应的空间是在堆上分配的，地址是从低到高的增长，而堆栈是往低地址方向增长的，
       //所以要使用这一块人为改变的栈帧区域，首先地址要调到最高位，即ss_sp + ss_size的位置
 

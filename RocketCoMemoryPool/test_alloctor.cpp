@@ -1,7 +1,25 @@
+/**
+ * Copyright lizhaolong(https://github.com/Super-long)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Code comment are all encoded in UTF-8.*/
+
 #include <bits/stdc++.h>
 using namespace std;
 
 #include "RocketCoAlloctor.h"
+#include <gperftools/profiler.h>
 
 /*
  * 测试ChunkAlloc中的使用内存碎片。先请求3KB，再请求2.5KB，最后请求11KB
@@ -46,7 +64,7 @@ int main(){
     alloctor.RocketCoFree(ptr2, 6*1024);
  */
 
-    for(int i = 0; i < 10; ++i){
+/*     for(int i = 0; i < 10; ++i){
         cout << i << endl;
         auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
         alloctor.RocketCoFree(ptr1, 3*1024); 
@@ -57,19 +75,22 @@ int main(){
         auto ptr1 = alloctor.RocketCoMalloc(6 * 1024);
         alloctor.RocketCoFree(ptr1, 6*1024); 
     }
-    
+     */
 
     auto start = std::chrono::high_resolution_clock::now(); 
 
-/*     for (size_t i = 0; i < 100000; i++){
+    ProfilerStart("test.prof");//开启性能分析    
+
+    for (size_t i = 0; i < 100000; i++){
         //cout << i << endl;
         auto ptr1 = alloctor.RocketCoMalloc(3 * 1024);
         alloctor.RocketCoFree(ptr1, 3*1024); 
 
         //auto ptr2 = malloc(3 * 1024);
         //free(ptr2);
-    } */
+    }
     
+    ProfilerStop();//停止性能分析
 
     auto end = std::chrono::high_resolution_clock::now();
 

@@ -1,3 +1,20 @@
+/**
+ * Copyright lizhaolong(https://github.com/Super-long)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Code comment are all encoded in UTF-8.*/
+
 #include "RocketCoAlloctor.h"
 #include <assert.h>
 #include <algorithm>
@@ -122,8 +139,6 @@ namespace RocketCo{
             return res;
         }
 
-        printf("result : %p.\n", result);
-
         free_list[DataIndex] = result->next;
 
         if(free_list[DataIndex] != nullptr){
@@ -147,9 +162,7 @@ namespace RocketCo{
     void RocketCoAlloctor::RocketCoFree(char* ptr, size_t len){
         // 用户使用分配时的大小就可以了
         len = DataAlignment(len);
-        cout << "len:" << len << endl;
 
-        //cout << "ptr : " << ptr - (char*)0 << endl;
         auto item = pointer_effective_interval.lower_bound(std::make_pair(ptr - (char*)0, __LONG_MAX__));
         if(item == pointer_effective_interval.end()){
             // 可能释放的是未分配的指针，此时为ub。其实可以维护一个哈希set，就可以知道这个指针是否是我们分配的了;
@@ -159,8 +172,6 @@ namespace RocketCo{
         } else if (item != pointer_effective_interval.begin()){ // 等于begin的话不需要操作
             --item;
         }
-
-        //cout << "interval: " << item->second - item->first << endl;
         
         // 此时已经没有什么用了
         mark_allocated_block.erase(ptr);
@@ -172,24 +183,21 @@ namespace RocketCo{
         // 目前只支持合并两个块，因为太懒了;
         bool flag = false;
 
-        //printf("---->%p %p.\n", startfree , endfree);
-
         // 首先合并低地址
         if(ptr - (char*)0 != item->first) {
             if(mark_allocated_block.find(ptr - 1) == mark_allocated_block.end()) { // 未被分配，直接在free_list中查找即可
                 // 显然block后面的结构体只需要长度; 
                 FreeListNode* node = reinterpret_cast<FreeListNode*>(ptr - sizeof(FreeListNode));
                 flag = MergeData(ptr - node->item_length, node->item_length, ptr, len, LeftNeedModified);
-                if(!flag){
+/*                 if(!flag){
                     cerr << "Merge data error.\n";
-                }
+                } */
             } // 已经被分配
         }// else{} // 左区间不执行合并，什么也不做
         
         // 再合并高地址
         if(!flag && ptr + (len - 1) - (char*)0 != item->second){ // 显然不可能大于item->second
             // 上面判断了ptr的右区间不等于全部数据的右区间，那么它们之间一定有空隙
-            cout << "合并后半块\n";
             if(mark_allocated_block.find(ptr + len) == mark_allocated_block.end()){ // 且后面block没有被分配
                 // 下一位的起始地址上就是FreeListNode;
                 FreeListNode* node = reinterpret_cast<FreeListNode*>(ptr + len);
@@ -231,7 +239,6 @@ namespace RocketCo{
 
         // step2: 把其中一个要执行合并的数据块从原链表中去除
         if(flag == LeftNeedModified){
-            cout << "lenA : " << lenA << endl;
             MoveToFreeList(reinterpret_cast<FreeListNode*>(lhs), lenA);
         } else if (flag == RightNeedModified){
             MoveToFreeList(reinterpret_cast<FreeListNode*>(rhs), lenB);
@@ -252,20 +259,17 @@ namespace RocketCo{
      */
     void RocketCoAlloctor::MoveToFreeList(FreeListNode* ptr, size_t len){
         size_t index = FindFreeListIndex(len);
-        //cout << "index : " << index << " len : " << len << endl;
-        //printf("free ptr -> %p, index -> %d, len -> %d.\n", ptr, index, len);
+
         if(ptr->prev == nullptr){ // 本身是头节点
-            //cout << "应该是头\n";
             free_list[index] = ptr->next;
             if(free_list[index] != nullptr){
                 // 要使用prev为空判断头节点
                 free_list[index]->prev = nullptr;
-            } //else {cout << "应该是这里\n";}
+            }
         } else {
             ptr->prev->next = ptr->next;
             ptr->next->prev = ptr->prev;
         }
-        //cout << "hello world.\n";
     }
 
     /*
@@ -290,11 +294,8 @@ namespace RocketCo{
     }
 
     void RocketCoAlloctor::MarkBlock(char* ptr, size_t len){
-        //printf("ptr  : %p, %d.\n", ptr, len - sizeof(FreeListNode));
         FreeListNode* node = reinterpret_cast<FreeListNode*>(ptr + (len - sizeof(FreeListNode)));
-        //printf("node : %p\n", node);
         node->item_length = len;
-        //printf("hello world.\n");
     }     
 
     /*
@@ -303,8 +304,6 @@ namespace RocketCo{
     char* RocketCoAlloctor::Refill(size_t length){
         int number = 20; // 一次分配20个length长度的块
         char* chunk = ChunkAlloc(length, number);
-
-        cout << "number=" << number << endl;
 
         // 在malloc失败且高水位回调调用完成以后返回nullptr
         if(chunk == nullptr) {
@@ -332,7 +331,7 @@ namespace RocketCo{
         next_obj->slot = refill_index;
         next_obj->prev = nullptr; // 链表头部prev为空
         next_obj->next = nullptr;
-        //printf("%p; length := %d\n", next_obj, length);
+
         MarkBlock(reinterpret_cast<char*>(next_obj), length);
         
         for (size_t i = 1; i < number - 1 ; i++){
@@ -373,7 +372,6 @@ namespace RocketCo{
             if(Remaining > 0){  // 利用剩余的内存
                 // 空余的空间最小为512字节，所以这里一定可以释放一片空间，也可能需要释放两片 TODO 需要修改 把全部的碎片都利用到
                 size_t target = DataAlignment(Remaining);
-                //cout << "target : " << target << "------ Remaining : " << Remaining << endl;
                 size_t interval = target - Remaining;
 
                 size_t list_index = INT64_MAX;
