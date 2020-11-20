@@ -25,6 +25,17 @@ namespace RocketCo {
     typedef void* (*co_runningFunction)( void* s, void* s2 );
     // 需要在eip中赋予函数运行的其实地址,用std::function太麻烦,还得用target转一下,直接函数指针最方便
     // 这个function实际上是对协程实际执行函数的一个包装,为了在协程执行完以后切换执行权
+    // 当然改为function就可以简单的支持闭包了;这样做
+    /*
+    std::function<void(void*)> fun(fun3);
+    void (*const* ptr)(void*) = fun.target<void(*)(void*)>();
+    (*ptr)(nullptr);
+
+    // 此时两者的地址是一样的;
+    printf("%p\n", *ptr);
+    printf("%p\n", fun3);
+
+    */
 
     struct co_swap_param_t{
         const void* p1;
