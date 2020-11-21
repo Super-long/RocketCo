@@ -919,6 +919,7 @@ namespace RocketCo {
         RemoveFromWheel<ConditionVariableItem, ConditionVariableLink>(Item);
 
         delete Item;
+        return -1;
     }
 
     ConditionVariableItem* PopFromLink(ConditionVariableLink* CV){

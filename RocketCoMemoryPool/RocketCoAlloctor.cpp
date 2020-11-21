@@ -24,6 +24,15 @@ using namespace std;
 
 namespace RocketCo{
 
+
+// Using GNU C __attribute__ -> http://unixwiz.net/techtips/gnu-c-attributes.html
+// https://gcc.gnu.org/onlinedocs/gcc/Variable-Attributes.html
+#ifndef __GNUC__
+
+#define  __attribute__(x)  /*NOTHING*/
+    
+#endif
+
     RocketCoAlloctor::RocketCoAlloctor() : high_water_callback([](void*){}){
         // 是否需要在构造的时候直接创建一大片内存呢
         startfree = nullptr;
@@ -38,7 +47,7 @@ namespace RocketCo{
         pointer_effective_interval.insert(std::make_pair(LONG_MAX,LONG_MAX));
     }
 
-    size_t RocketCoAlloctor::Index2SlotLength(size_t index){
+    size_t __attribute__((pure)) RocketCoAlloctor::Index2SlotLength(size_t index){
         assert(index >= 0);
 
         ++index;
@@ -55,7 +64,7 @@ namespace RocketCo{
     }
 
     // 对齐以后找到所属的free_list链表下标
-    size_t RocketCoAlloctor::FindFreeListIndex(size_t index){
+    size_t __attribute__((pure)) RocketCoAlloctor::FindFreeListIndex(size_t index){
         if(index <= FirstSlot){
             index >>= 9;        // 除以512
         } else if (index <= SecondSlot){
@@ -71,7 +80,7 @@ namespace RocketCo{
     }
 
     // 必须在对齐以后使用才有意义
-    size_t RocketCoAlloctor::DataAlignment(size_t index){
+    size_t __attribute__((pure)) RocketCoAlloctor::DataAlignment(size_t index){
         if(index <= FirstSlot){
             if(index & 0b111111111){
                 index &= ~0b111111111;
@@ -92,7 +101,7 @@ namespace RocketCo{
         return index;
     }
 
-    size_t RocketCoAlloctor::Data2Alignment(size_t length){
+    size_t __attribute__((pure)) RocketCoAlloctor::Data2Alignment(size_t length){
         assert(length < 0);
 
         if(length < FirstSlot){
@@ -103,8 +112,8 @@ namespace RocketCo{
             return 2048;
         } else {
             exit;
-        } 
-    }  
+        }
+    }
 
 /*    
     // 错误的想法！
@@ -119,8 +128,9 @@ namespace RocketCo{
         *(ptr + (length-1)) = CHAR_MAX;
     } */
 
-
-    char* RocketCoAlloctor::RocketCoMalloc(size_t index){
+    // 函数返回时，函数返回的指针P不能别名任何其他有效指针，而且在P寻址的任何存储中都没有指向有效对象的指针。
+    // 告诉编译器这个函数类似malloc，在大多数情况下不会返回null，使用此属性可以优化代码;
+    char* __attribute__((malloc)) RocketCoAlloctor::RocketCoMalloc(size_t index){
         if(index > ThirdSlot){
             // TODO 可能分配失败，后面加上失败时的回调，free的时候需要查看有效区间，不存在的话free
             return static_cast<char*>(malloc(index));
@@ -158,8 +168,9 @@ namespace RocketCo{
      * @param: 第二个参数是必要的，不然无法判断放到哪一个空闲链表中。
      * @notes: 如果要释放的指针不在有效区间内的话就认为是malloc产生的，直接free就可以了。这样可能导致free一个不是RocketCoAlloctor分配的内存，这是用户的问题。
      * 还有一点，就是这个分配器其实是专属此项目的栈拷贝的，所以在分配以后会立即使用，这也是正确合并的前提。
+     * nonnull -> 参数为空指针发出警告
      */
-    void RocketCoAlloctor::RocketCoFree(char* ptr, size_t len){
+    void __attribute__((nonnull (1))) RocketCoAlloctor::RocketCoFree(char* ptr, size_t len){
         // 用户使用分配时的大小就可以了
         len = DataAlignment(len);
 
@@ -211,7 +222,7 @@ namespace RocketCo{
         }
     }
 
-    bool RocketCoAlloctor::IsMerge(size_t len){
+    bool __attribute__((pure)) RocketCoAlloctor::IsMerge(size_t len){
         if(len < 0 && len > ThirdSlot){
             return false;
         } else if (len < FirstSlot){
@@ -257,7 +268,7 @@ namespace RocketCo{
     /*
      * @notes: 把ptr从所属的free_list中移除;
      */
-    void RocketCoAlloctor::MoveToFreeList(FreeListNode* ptr, size_t len){
+    void __attribute__((hot)) RocketCoAlloctor::MoveToFreeList(FreeListNode* ptr, size_t len){
         size_t index = FindFreeListIndex(len);
 
         if(ptr->prev == nullptr){ // 本身是头节点
@@ -293,7 +304,9 @@ namespace RocketCo{
         MarkBlock(reinterpret_cast<char*>(ptr), len);
     }
 
-    void RocketCoAlloctor::MarkBlock(char* ptr, size_t len){
+    // https://docs.microsoft.com/en-us/cpp/cpp/fastcall?view=msvc-160
+    // 性能分析中调用最多的函数
+    void __attribute__((__fastcall)) __attribute__((hot)) RocketCoAlloctor::MarkBlock(char* ptr, size_t len){
         FreeListNode* node = reinterpret_cast<FreeListNode*>(ptr + (len - sizeof(FreeListNode)));
         node->item_length = len;
     }     
